@@ -1,0 +1,23 @@
+[build-system]
+requires = ["setuptools", "setuptools-scm"]
+build-backend = "setuptools.build_meta"
+
+[project]
+requires-python = ">=3.11"
+name = "chatbot"
+description = "Simple chatbot with FastAPI"
+readme = "README.md"
+dynamic = ["dependencies"]
+version = "0.0"
+
+[tool.setuptools.dynamic]
+dependencies = { file = "requirements.lock" }
+
+[tool.setuptools.packages.find]
+include = ["chatbot"]
+
+[tool.setuptools.package-data]
+structuring_information = ["*.toml"]
+
+[project.optional-dependencies]
+dev = ["pytest", "pip-tools", "typeguard"]
