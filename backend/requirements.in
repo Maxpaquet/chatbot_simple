@@ -1,3 +1,9 @@
 jupyter
-fastapi
-uvicorn[standard]
+fastapi # ==0.118.1
+uvicorn
+langgraph==0.6.6
+langchain-core==0.3.74
+dotenv
+langchain-google-genai==2.1.9
+pydantic==2.11.7
+langgraph-checkpoint-sqlite
