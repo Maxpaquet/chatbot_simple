@@ -18,14 +18,14 @@ services:
     environment:
       - NEXT_PUBLIC_API_URL=http://backend:8000
 
-  jupyter:
-    build: ./backend
-    ports:
-      - "8888:8888"
-    env_file:
-      - ./backend/.env
-    command: jupyter notebook --ip=0.0.0.0 --port=8888 --allow-root --no-browser
-    volumes:
-      - ./backend:/workspace
-    depends_on:
-      - backend
+  # jupyter:
+  #   build: ./backend
+  #   ports:
+  #     - "8888:8888"
+  #   env_file:
+  #     - ./backend/.env
+  #   command: jupyter notebook --ip=0.0.0.0 --port=8888 --allow-root --no-browser
+  #   volumes:
+  #     - ./backend:/workspace
+  #   depends_on:
+  #     - backend
