@@ -1,8 +1,6 @@
 from typing import List, Annotated, Optional
-from typing_extensions import TypedDict
 
 from langgraph.prebuilt import create_react_agent
-from langgraph.graph.message import add_messages, AnyMessage
 from langgraph.prebuilt import InjectedState
 from langgraph.types import Command
 from langgraph.store.base import BaseStore
@@ -16,19 +14,11 @@ from langchain_core.messages import ToolMessage
 from langchain_core.tools.base import InjectedToolCallId
 from langchain_core.tools import BaseTool, tool
 
+from chatbot.agent.models import AnsweringState, Answer
+
 SYSTEM_PROMPT = (
     """You are an AI assistant that helps people answering their question."""
 )
-
-
-class Answer(TypedDict):
-    item: str
-
-
-class AnsweringState(TypedDict):
-    messages: Annotated[list[AnyMessage], add_messages]
-    answer: Optional[Answer] = None
-    remaining_steps: int
 
 
 def get_tools(verbose: bool) -> List[BaseTool]:
