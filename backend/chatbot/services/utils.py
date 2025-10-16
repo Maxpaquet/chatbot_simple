@@ -7,10 +7,10 @@ from langchain_core.messages import convert_to_messages
 from langchain_core.load import load
 from langchain_core.runnables import RunnableConfig
 
-from chatbot.api.models import ThreadID
+from chatbot.services.models import ThreadID
 
 
-def prep_input(input: Dict[str, Any]) -> input:
+def prep_input(input: Dict[str, Any]) -> Dict[str, Any]:
     if "messages" in input:
         with contextlib.suppress(Exception):
             try:
@@ -20,18 +20,8 @@ def prep_input(input: Dict[str, Any]) -> input:
     return input
 
 
-def prep_config(
-    config: Optional[RunnableConfig], thread_id: ThreadID
-) -> RunnableConfig:
-    if config is None:
-        config = RunnableConfig()
-    return {
-        **config,
-        "configurable": {
-            **config.get("configurable", {}),
-            "thread_id": thread_id,
-        },
-    }
+def prep_config(thread_id: ThreadID) -> RunnableConfig:
+    return {"configurable": {"thread_id": thread_id}}
 
 
 def _orjson_default(obj: Any) -> Any:
@@ -41,7 +31,7 @@ def _orjson_default(obj: Any) -> Any:
     elif hasattr(obj, "dict") and callable(obj.dict):
         return obj.dict()
     elif isinstance(obj, set | frozenset):
-        return List(obj)
+        return list(obj)
     else:
         raise TypeError(
             f"Object of type {obj.__class__.__name__} is not JSON serializable"
