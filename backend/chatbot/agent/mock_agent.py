@@ -1,112 +1,97 @@
-from typing import Annotated, Optional, List
+from typing import Annotated, Optional, List, Callable, Dict, Any
 from typing_extensions import TypedDict
-
+from uuid import uuid4
+import time
 
 from langgraph.graph import StateGraph
-from langgraph.graph.message import add_messages, AnyMessage
-from langgraph.prebuilt import InjectedState, ToolNode
 from langgraph.types import Command
 from langgraph.checkpoint.base import BaseCheckpointSaver
 
-from langchain_core.messages import AIMessage, ToolMessage, SystemMessage
-from langchain_core.tools.base import InjectedToolCallId
 from langchain_core.tools import BaseTool, tool
+from langchain_core.tools.base import InjectedToolCallId
+from langchain_core.messages import AIMessage, ToolMessage
+from langchain_core.messages.tool import ToolCall
+
+from chatbot.agent.models import AnsweringState, Answer
 
 
-# Define Answer and AnsweringState as in answering.py
-class AnswerMock(TypedDict):
-    item: str
+def get_mock_tools() -> List[BaseTool]:
+    @tool
+    def mock_tool(
+        reasoning: Annotated[str, "Reasoning for using the tool"],
+        final_answer: Annotated[Answer, "The final answer to the question of the user"],
+    ):
+        """Mock tool that simulates answering a question."""
+        return f"Processed: reasoning={reasoning}, final_answer={final_answer}"
+
+    return [mock_tool]
 
 
-class AnsweringStateMock(TypedDict):
-    messages: Annotated[List[AnyMessage], add_messages]
-    answer: Optional[AnswerMock]
-    remaining_steps: int
+def tool_choice_node() -> Callable:
+    def process(state: AnsweringState) -> Command:
+        tool_call_id: str = str(uuid4())
+        tool_call = ToolCall(
+            name="mock_tool",
+            args={
+                "reasoning": "Mock reasoning",
+                "final_answer": {"item": "Mocked tool answer"},
+            },
+            id=tool_call_id,
+        )
+        ai_msg = AIMessage(
+            content="This is a mock AI response. [mock_tool will be called]",
+            tool_calls=[tool_call],
+        )
+        return Command(
+            update={
+                "messages": [ai_msg],
+                "remaining_steps": 1,  # Let ToolNode run once
+            }
+        )
+
+    return process
 
 
-# # Define a mock tool
-# @tool
-# def mock_tool(
-#     reasoning: Annotated[str, "Reasoning for using the tool"],
-#     final_answer: Annotated[AnswerMock, "The final answer to the question of the user"],
-#     state: Annotated[AnsweringStateMock, InjectedState],
-#     tool_call_id: Annotated[str, InjectedToolCallId],
-# ):
-#     """Mock tool that simulates answering a question."""
-#     return Command(
-#         update={
-#             "answer": final_answer,
-#             "messages": [
-#                 ToolMessage(
-#                     content=str(final_answer),
-#                     artifact=final_answer,
-#                     tool_call_id=tool_call_id,
-#                 )
-#             ],
-#         }
-#     )
+def tool_executer(state: AnsweringState) -> Dict:
+    last_message = state["messages"][-1]
+    assert isinstance(last_message, AIMessage)
 
+    tool_call: ToolCall = last_message.tool_calls[0]
+    tool_name: str = tool_call.get("name", "mock_tool")
+    tool_args: Dict[str, Any] = tool_call.get("args", {"key": None})
 
-# tools: List[BaseTool] = [mock_tool]
+    tool_call_id_value = tool_call.get("id")
+    tool_call_id: str = (
+        tool_call_id_value if tool_call_id_value is not None else str(uuid4())
+    )
 
+    tools: List[BaseTool] = get_mock_tools()
 
-# # The agent node returns an AIMessage with a tool call (tool_call_id must match what ToolNode expects)
-# def mock_agent_node(state: AnsweringStateMock) -> Command:
-#     ai_msg = AIMessage(
-#         content="This is a mock AI response. [mock_tool will be called]",
-#         tool_calls=[
-#             {
-#                 "name": "mock_tool",
-#                 "args": {
-#                     "reasoning": "Mock reasoning",
-#                     "final_answer": {"item": "Mocked tool answer"},
-#                 },
-#                 "id": "mock_tool_call_id",
-#             }
-#         ],
-#     )
-#     # return Command(
-#     #     update={
-#     #         "messages": [ai_msg],
-#     #         "remaining_steps": state.get("remaining_steps", 2) - 1,
-#     #     }
-#     # )
-#     # After the agent node, set remaining_steps to 1 so ToolNode runs once, then graph ends
-#     return Command(
-#         update={
-#             "messages": [ai_msg],
-#             "remaining_steps": 0,  # End after ToolNode
-#             "answer": state.get("answer", None),
-#         }
-#     )
+    print(f"tool_args: {tool_args}")
+
+    tool = next((t for t in tools if t.name == tool_name), None)
+    if tool is None:
+        raise ValueError(f"Tool {tool_name} not found")
+
+    result = tool.invoke(input=tool_args)
+    time.sleep(1)
+    return {"messages": ToolMessage(content=str(result), tool_call_id=tool_call_id)}
 
 
 def create_mock_graph(
     checkpointer: Optional[BaseCheckpointSaver] = None,
 ):
+    graph = StateGraph(state_schema=AnsweringState)
 
-    def mock_agent_node(state: AnsweringStateMock):
-        # system_message = SystemMessage(content = "You are a helpful assistant.")
-        print("[mock_agent_node]")
-        return {"messages": AIMessage(content="This is a mock AI response.")}
+    tool_choice_node_: Callable = tool_choice_node()
 
-    def mock_tool_node(state: AnsweringStateMock):
-        print("[mock_tool_node]")
-        return {
-            "messages": ToolMessage(
-                content="This is a mock Tool response.",
-                tool_call_id="mock_tool_call_id",
-            )
-        }
+    graph.add_node("tool_choice", tool_choice_node_)
+    graph.add_node("tool_executer", tool_executer)
 
-    graph = StateGraph(state_schema=AnsweringStateMock)
-    graph.add_node("agent", mock_agent_node)
-    graph.add_node("tool", mock_tool_node)
+    graph.add_edge("tool_choice", "tool_executer")
 
-    graph.add_edge("agent", "tool")
-
-    graph.set_entry_point("agent")
-    graph.set_finish_point("tool")
+    graph.set_entry_point("tool_choice")
+    graph.set_finish_point("tool_executer")
 
     if checkpointer is not None:
         return graph.compile(checkpointer=checkpointer)
