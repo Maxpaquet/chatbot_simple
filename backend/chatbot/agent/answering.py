@@ -9,6 +9,8 @@ from langgraph.store.base import BaseStore
 from langgraph.checkpoint.base import BaseCheckpointSaver
 from langgraph.graph.state import CompiledStateGraph
 
+from langgraph.prebuilt import ToolNode
+
 from langchain_core.language_models import BaseLanguageModel
 from langchain_core.messages import ToolMessage
 from langchain_core.tools.base import InjectedToolCallId
@@ -25,7 +27,7 @@ class Answer(TypedDict):
 
 class AnsweringState(TypedDict):
     messages: Annotated[list[AnyMessage], add_messages]
-    answer: Optional[Answer]
+    answer: Optional[Answer] = None
     remaining_steps: int
 
 
@@ -66,6 +68,18 @@ def create_agent(
     store: Optional[BaseStore] = None,
     checkpointer: Optional[BaseCheckpointSaver] = None,
 ) -> CompiledStateGraph:
+    """
+    Creates and configures a ReAct agent with the specified language model, tools, and optional storage and checkpointing.
+
+    Args:
+        model (BaseLanguageModel): The language model to be used by the agent.
+        tools (List[BaseTool]): A list of tools that the agent can utilize.
+        store (Optional[BaseStore], optional): An optional storage backend for the agent's state. Defaults to None.
+        checkpointer (Optional[BaseCheckpointSaver], optional): An optional checkpoint saver for persisting agent state. Defaults to None.
+
+    Returns:
+        CompiledStateGraph: The initialized and compiled agent ready for use.
+    """
     kwargs = {
         "model": model,
         "tools": tools,
