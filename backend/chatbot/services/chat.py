@@ -17,9 +17,9 @@ async def service_agent_chat(
     state: AgentLifespanState,
 ) -> Callable:
     print(f"[agent_chat] thread_id: {thread_id}, body: {body}")
-    config: RunnableConfig = prep_config(thread_id)
+    config: RunnableConfig = await prep_config(thread_id)
     print(f"[agent_chat] config: {config}")
-    inputs: Dict[str, Any] = prep_input(body.input)
+    inputs: Dict[str, Any] = await prep_input(body.input)
     subgraphs_stream = True  # body.subgraphs_stream
 
     stream_mode: StreamMode | List[StreamMode] = ["values"]

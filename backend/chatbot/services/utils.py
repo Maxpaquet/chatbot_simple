@@ -6,11 +6,14 @@ import orjson
 from langchain_core.messages import convert_to_messages
 from langchain_core.load import load
 from langchain_core.runnables import RunnableConfig
+from langgraph.checkpoint.base import BaseCheckpointSaver, Checkpoint
+from langgraph.checkpoint.sqlite.aio import AsyncSqliteSaver
+from langgraph.checkpoint.sqlite import SqliteSaver
 
 from chatbot.services.models import ThreadID
 
 
-def prep_input(input: Dict[str, Any]) -> Dict[str, Any]:
+async def prep_input(input: Dict[str, Any]) -> Dict[str, Any]:
     if "messages" in input:
         with contextlib.suppress(Exception):
             try:
@@ -20,8 +23,25 @@ def prep_input(input: Dict[str, Any]) -> Dict[str, Any]:
     return input
 
 
-def prep_config(thread_id: ThreadID) -> RunnableConfig:
+async def prep_config(thread_id: ThreadID) -> RunnableConfig:
     return {"configurable": {"thread_id": thread_id}}
+
+
+async def get_agent_state(
+    thread_id: ThreadID,
+    checkpointer: AsyncSqliteSaver | SqliteSaver,
+) -> Dict[str, Any] | None:
+    """Retrieve the last state of the agent from the checkpointer."""
+    config: RunnableConfig = {"configurable": {"thread_id": thread_id}}
+
+    ckeckpoint: Checkpoint | None = (
+        await checkpointer.aget(config)
+        if isinstance(checkpointer, AsyncSqliteSaver)
+        else checkpointer.get(config)
+    )
+    if ckeckpoint is None:
+        return None
+    return ckeckpoint.get("channel_values", None)
 
 
 def _orjson_default(obj: Any) -> Any:
