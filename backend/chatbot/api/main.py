@@ -36,30 +36,3 @@ app.include_router(router)
 @app.get("/health", response_model=Dict[str, str], tags=["Root"])
 def read_root():
     return {"status": "ok"}
-
-
-# class Item(BaseModel):
-#     id: int
-#     name: str
-#     description: str | None = None
-
-
-# # Petite "base" en mémoire
-# DB: list[Item] = []
-
-
-# @app.get("/")
-# def read_root():
-#     return {"message": "Hello from FastAPI"}
-
-
-# @app.post("/items", response_model=Item)
-# def create_item(item: Item):
-#     DB.append(item)
-#     logger.info(f"Item added: {item}")
-#     return item
-
-
-# @app.get("/items")
-# def list_items():
-#     return DB
