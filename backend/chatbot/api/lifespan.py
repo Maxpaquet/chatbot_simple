@@ -5,6 +5,9 @@ from pathlib import Path
 
 from langgraph.checkpoint.base import BaseCheckpointSaver
 from langgraph.pregel import Pregel
+from langgraph.checkpoint.sqlite.aio import AsyncSqliteSaver
+from langgraph.checkpoint.sqlite import SqliteSaver
+
 
 from chatbot.agent.main import get_agent
 
@@ -16,7 +19,7 @@ class AgentLifespanState:
     """Global state for the lifespan of the application."""
 
     agent: Pregel
-    checkpointer: BaseCheckpointSaver
+    checkpointer: AsyncSqliteSaver | SqliteSaver
 
 
 def get_state(request: Request) -> AgentLifespanState:
