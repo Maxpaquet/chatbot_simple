@@ -32,7 +32,7 @@ async def lifespan(
     CHECKPOINT_SQLITE = f"{HERE}/../../data/checkpoint_app.db"
     async with AsyncSqliteSaver.from_conn_string(CHECKPOINT_SQLITE) as checkpointer:
         await checkpointer.setup()
-        agent = get_agent(checkpointer=checkpointer, verbose=False)
+        agent = get_agent(checkpointer=checkpointer, verbose=False, mock=True)
         app.state.state = AgentLifespanState(agent=agent, checkpointer=checkpointer)
 
         yield
