@@ -10,7 +10,7 @@ from langchain_core.runnables import RunnableConfig
 
 from chatbot.agent.answering import create_agent, get_tools, AnsweringState
 from chatbot.utils import get_model
-from chatbot.api.utils import prep_input
+from chatbot.services.utils import prep_input
 
 HERE = Path(__file__).parent
 
