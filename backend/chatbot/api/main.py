@@ -1,5 +1,6 @@
 from fastapi import FastAPI
 from pydantic import BaseModel
+from typing import Dict
 from fastapi.middleware.cors import CORSMiddleware
 import logging
 
@@ -30,6 +31,12 @@ app.add_middleware(
 
 
 app.include_router(router)
+
+
+@app.get("/health", response_model=Dict[str, str], tags=["Root"])
+def read_root():
+    return {"status": "ok"}
+
 
 # class Item(BaseModel):
 #     id: int
