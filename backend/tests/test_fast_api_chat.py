@@ -18,6 +18,7 @@ async def _chat_endpoint(client: TestClient):
     chat_request = ChatRequest(
         thread_id=thread_id,
         input=message,
+        agent_id=None,
     )
     payload = chat_request.model_dump()
 
