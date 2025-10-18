@@ -26,6 +26,10 @@ class ChatRequest(BaseModel):
         ...,
         description="The input data for the chat request.",
     )
+    agent_id: Optional[str] = Field(
+        None,
+        description="The ID of the agent to chat with.",
+    )
 
 
 class Thread(BaseModel):
