@@ -101,6 +101,8 @@ idna==3.11
     #   httpx
     #   jsonschema
     #   requests
+iniconfig==2.1.0
+    # via pytest
 ipykernel==7.0.1
     # via
     #   jupyter
@@ -260,6 +262,7 @@ packaging==25.0
     #   langchain-core
     #   langsmith
     #   nbconvert
+    #   pytest
 pandocfilters==1.5.1
     # via nbconvert
 parso==0.8.5
@@ -268,6 +271,8 @@ pexpect==4.9.0
     # via ipython
 platformdirs==4.5.0
     # via jupyter-core
+pluggy==1.6.0
+    # via pytest
 prometheus-client==0.23.1
     # via jupyter-server
 prompt-toolkit==3.0.52
@@ -317,6 +322,9 @@ pygments==2.19.2
     #   ipython-pygments-lexers
     #   jupyter-console
     #   nbconvert
+    #   pytest
+pytest==8.4.2
+    # via -r requirements.in
 python-dateutil==2.9.0.post0
     # via
     #   arrow
