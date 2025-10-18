@@ -126,7 +126,6 @@ TODO: Fill in details about the API endpoints, request/response formats, and exa
 
 - `/agent/chat/{thread_id}`: Chat with an agent (optionally specify agent id)
 - `/thread/{thread_id}`: Retrieve the entire conversation thread
-- ... (add more endpoints as needed)
 
 ## Configuration
 
