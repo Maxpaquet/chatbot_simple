@@ -1,6 +1,6 @@
 # chatbot
 
-Simple chatbot with FastAPI
+Simple chatbot with FastAPI. This project aims to develop my skills with FastAPI, multi-agent architecture, and high interaction with the user.
 
 ## Table of Contents
 
