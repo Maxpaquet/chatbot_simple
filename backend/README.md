@@ -66,6 +66,60 @@ docker build -t chatbot .
 docker run -p 8000:8000 chatbot
 ```
 
+## Concepts
+### Conversation Threads
+
+
+A **thread** represents a conversation between the user and the system, identified by a unique `thread_id` and containing a list of messages (`conversation`).
+
+#### Thread Model
+
+```python
+class Thread(BaseModel):
+        thread_id: str  # Unique identifier for the thread
+        conversation: List[MessageOut]  # List of messages in the conversation
+```
+
+#### MessageOut Model
+
+```python
+class MessageOut(BaseModel):
+        id: str  # Unique identifier for the message
+        author: Author  # One of: user, agent, tool, system
+        content: str  # Content of the message
+        timestamp: date  # When the message was created
+```
+
+#### Example Thread Object
+
+```json
+{
+    "thread_id": "abc123",
+    "conversation": [
+        {
+            "id": "msg1",
+            "author": "user",
+            "content": "Hello!",
+            "timestamp": "2025-10-18"
+        },
+        {
+            "id": "msg2",
+            "author": "agent",
+            "content": "Hi, how can I help you today?",
+            "timestamp": "2025-10-18"
+        }
+    ]
+}
+```
+
+**Fields:**
+- `thread_id`: Unique string identifying the conversation thread.
+- `conversation`: List of messages, each with:
+    - `id`: Unique message ID
+    - `author`: One of `user`, `agent`, `tool`, `system`
+    - `content`: Message text
+    - `timestamp`: ISO date string
+
 ## API Reference
 
 TODO: Fill in details about the API endpoints, request/response formats, and example payloads.
