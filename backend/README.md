@@ -140,8 +140,11 @@ TODO: Fill in details about environment variables, config files, or settings req
 - [x] Build a lifespan with a checkpointer (SQLite based)
 - [x] Add route `"/agent/chat/{thread_id}"` to chat with one agent
     - [ ] Add the agent id as optional param (enables later the capability to select which agent to discuss with)
-- [ ] Add route to pull the entire thread (representing the conversation) from the sqlite db.
+    - [x] Implement pytest for the route
+- [x] Add route `/agent/thread/{thread_id}` to pull the entire thread (representing the conversation) from the sqlite db.
+    - [x] Implemtn pytest for the route
 - [ ] Implement the logic to maintain a `profile` of the user based on previous conversation.
+- [ ] Implement a test_db when mock/test variables are set to `True`
 
 ### Frontend - To do list
 
