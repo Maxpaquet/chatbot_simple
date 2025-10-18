@@ -19,9 +19,9 @@ async def service_agent_chat(
     print(f"[agent_chat] thread_id: {thread_id}, body: {body}")
     config: RunnableConfig = await prep_config(thread_id)
     print(f"[agent_chat] config: {config}")
-    inputs: Dict[str, Any] = await prep_input(body.input)
-    subgraphs_stream = True  # body.subgraphs_stream
+    inputs: AnsweringState = await prep_input(body.input)
 
+    subgraphs_stream = True  # body.subgraphs_stream
     stream_mode: StreamMode | List[StreamMode] = ["values"]
 
     async def run_agent():
@@ -35,7 +35,7 @@ async def service_agent_chat(
             durability="exit",
         ):
 
-            print(f"[run_agent] item: {item}")
+            # print(f"[run_agent] item: {item}")
             if subgraphs_stream:
                 graph_, event, data_ = item
             else:

@@ -6,21 +6,37 @@ import orjson
 from langchain_core.messages import convert_to_messages
 from langchain_core.load import load
 from langchain_core.runnables import RunnableConfig
+from langchain_core.messages import HumanMessage
+
 from langgraph.checkpoint.base import BaseCheckpointSaver, Checkpoint
 from langgraph.checkpoint.sqlite.aio import AsyncSqliteSaver
 from langgraph.checkpoint.sqlite import SqliteSaver
+from langgraph.graph.message import AnyMessage
 
+from chatbot.messages.models import MessageIn
 from chatbot.services.models import ThreadID
+from chatbot.agent.answering import AnsweringState
 
 
-async def prep_input(input: Dict[str, Any]) -> Dict[str, Any]:
-    if "messages" in input:
-        with contextlib.suppress(Exception):
-            try:
-                input["messages"] = convert_to_messages(input["messages"])
-            except Exception:
-                input["messages"] = load(input["messages"])
-    return input
+async def prep_input(message: MessageIn) -> AnsweringState:
+    # if "messages" in message:
+    #     with contextlib.suppress(Exception):
+    #         try:
+    #             message["messages"] = convert_to_messages(message["messages"])
+    #         except Exception:
+    #             message["messages"] = load(message["messages"])
+    messages: List[AnyMessage] = [
+        HumanMessage(
+            content=message.content,
+            id=message.id,
+        )
+    ]
+    prep_input = AnsweringState(
+        messages=messages,
+        answer=None,
+        remaining_steps=10,
+    )
+    return prep_input
 
 
 async def prep_config(thread_id: ThreadID) -> RunnableConfig:
