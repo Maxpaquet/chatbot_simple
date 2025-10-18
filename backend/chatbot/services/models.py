@@ -2,18 +2,9 @@ from typing import Dict, Any, Optional, List
 from pydantic import BaseModel, Field
 from enum import StrEnum
 
-from chatbot.messages.models import MessageOut
+from chatbot.messages.models import MessageOut, MessageIn
 
 ThreadID = str
-
-
-class Thread(BaseModel):
-    thread_id: ThreadID = Field(
-        ..., description="The unique identifier for the thread."
-    )
-    channel_values: Dict[str, Any] = Field(
-        ..., description="A brief description of the thread."
-    )
 
 
 class Language(StrEnum):
@@ -31,7 +22,7 @@ class ChatRequest(BaseModel):
         ...,
         description="The thread ID for the conversation.",
     )
-    input: Dict[str, Any] = Field(
+    input: MessageIn = Field(
         ...,
         description="The input data for the chat request.",
     )
@@ -46,6 +37,10 @@ class Thread(BaseModel):
         ...,
         description="The messages in the conversation.",
     )
+
+    def __str__(self) -> str:
+        conv_str = "\n".join(str(msg) for msg in self.conversation)
+        return f"Thread ID: {self.thread_id}\nConversation:\n{conv_str}"
 
 
 class Event(BaseModel):
