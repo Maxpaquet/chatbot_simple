@@ -2,6 +2,7 @@ from typing import Any, Dict, List, Callable
 
 from langchain_core.runnables import RunnableConfig
 from langgraph.types import StreamMode
+from langgraph.pregel import Pregel
 
 from chatbot.services.models import ChatRequest, ThreadID, Thread
 from chatbot.messages.models import MessageOut
@@ -24,10 +25,12 @@ async def service_agent_chat(
     subgraphs_stream = True  # body.subgraphs_stream
     stream_mode: StreamMode | List[StreamMode] = ["values"]
 
+    agent: Pregel = state.agent_dict[body.agent_id or "default"]
+
     async def run_agent():
         last_data = None
         last_event = None
-        async for item in state.agent.astream(
+        async for item in agent.astream(
             input=inputs,
             config=config,
             subgraphs=subgraphs_stream,  # body.subgraphs_stream,

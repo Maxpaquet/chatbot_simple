@@ -1,3 +1,4 @@
+from typing import Dict
 from contextlib import asynccontextmanager
 from dataclasses import dataclass
 from fastapi import Request, FastAPI
@@ -9,7 +10,7 @@ from langgraph.checkpoint.sqlite.aio import AsyncSqliteSaver
 from langgraph.checkpoint.sqlite import SqliteSaver
 
 
-from chatbot.agent.main import get_agent
+from chatbot.agent.main import get_agents_dict
 
 HERE = Path(__file__).parent
 
@@ -18,7 +19,7 @@ HERE = Path(__file__).parent
 class AgentLifespanState:
     """Global state for the lifespan of the application."""
 
-    agent: Pregel
+    agent_dict: Dict[str, Pregel]
     checkpointer: AsyncSqliteSaver | SqliteSaver
 
 
@@ -35,7 +36,12 @@ async def lifespan(
     CHECKPOINT_SQLITE = f"{HERE}/../../data/checkpoint_app.db"
     async with AsyncSqliteSaver.from_conn_string(CHECKPOINT_SQLITE) as checkpointer:
         await checkpointer.setup()
-        agent = get_agent(checkpointer=checkpointer, verbose=False, mock=True)
-        app.state.state = AgentLifespanState(agent=agent, checkpointer=checkpointer)
+        agent_dict: Dict[str, Pregel] = await get_agents_dict(
+            checkpointer=checkpointer, verbose=False, mock=True
+        )
+
+        app.state.state = AgentLifespanState(
+            agent_dict=agent_dict, checkpointer=checkpointer
+        )
 
         yield
