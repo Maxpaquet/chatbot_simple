@@ -12,6 +12,7 @@ class Author(StrEnum):
 
 
 class MessageIn(BaseModel):
+    id: str = Field(..., description="The unique identifier for the message.")
     author: Author = Field(
         ..., description="The author of the message (e.g., user, assistant)."
     )
@@ -37,3 +38,6 @@ class MessageOut(MessageIn):
             "content": self.content,
             "timestamp": self.timestamp.isoformat(),
         }
+
+    def __str__(self) -> str:
+        return f"[{self.timestamp.isoformat()}] {self.author.value}: {self.content}"
