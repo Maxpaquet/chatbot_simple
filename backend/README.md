@@ -1,14 +1,89 @@
+# chatbot
 
+Simple chatbot with FastAPI
+
+## Table of Contents
+
+- [Overview](#overview)
+- [Features](#features)
+- [Architecture](#architecture)
+- [Installation](#installation)
+- [Usage](#usage)
+- [API Reference](#api-reference)
+- [Configuration](#configuration)
+- [Development](#development)
+- [Testing](#testing)
+- [Deployment](#deployment)
+- [Contributing](#contributing)
+- [License](#license)
+- [Acknowledgements](#acknowledgements)
+
+---
+
+## Overview
+
+This project is a simple chatbot backend built with FastAPI. It supports agent-based conversations, SQLite-based checkpointing, and is designed for extensibility.
+
+## Features
+
+- FastAPI backend for chatbot interactions
+- Mock agent for development/testing
+- SQLite-based checkpointing for conversation persistence
+- Extensible agent architecture
+- API routes for chatting and retrieving conversation threads
+
+## Architecture
+
+- Python 3.11+ (see `pyproject.toml`)
+- FastAPI for API layer
+- SQLite for persistence
+- Modular codebase (`chatbot/agent`, `chatbot/api`, `chatbot/messages`, `chatbot/services`)
+- Docker support for deployment
+
+## Installation
+
+### Prerequisites
+
+- Python 3.11+ (recommended: use `uv` for environment management)
+- Docker (optional, for containerized deployment)
+
+### Steps
+
+1. `uv venv --python 3.11`
+2. `source .venv/bin/activate`
+3. `uv pip install -r requirements.lock`
+
+## Usage
+
+### Running the API server
 
 ```bash
 uvicorn chatbot.api.main:app --reload --host 0.0.0.0 --port 8000
 ```
 
-## Work in progress
+### Docker
 
-### Backend
+Build and run the Docker container:
+```bash
+docker build -t chatbot .
+docker run -p 8000:8000 chatbot
+```
 
-#### To do list
+## API Reference
+
+TODO: Fill in details about the API endpoints, request/response formats, and example payloads.
+
+- `/agent/chat/{thread_id}`: Chat with an agent (optionally specify agent id)
+- `/thread/{thread_id}`: Retrieve the entire conversation thread
+- ... (add more endpoints as needed)
+
+## Configuration
+
+TODO: Fill in details about environment variables, config files, or settings required for deployment or development.
+
+## Development
+
+### Backend - To do list
 
 - [x] Build a mock agent making proper tool call and respecting the tool_call_id policy of OpenAI.
 - [x] Build a lifespan with a checkpointer (SQLite based)
@@ -17,8 +92,33 @@ uvicorn chatbot.api.main:app --reload --host 0.0.0.0 --port 8000
 - [ ] Add route to pull the entire thread (representing the conversation) from the sqlite db.
 - [ ] Implement the logic to maintain a `profile` of the user based on previous conversation.
 
-### Frontend
-
-#### To do list
+### Frontend - To do list
 
 - [ ] Follow React typescript tutorial [here](https://handsonreact.com/docs/labs/react-tutorial-typescript#fundamentals)
+
+## Testing
+
+Run backend tests:
+```bash
+pytest
+```
+TODO: Add more details about test coverage, test files, and how to run frontend tests if applicable.
+
+## Deployment
+
+- Dockerfile provided for containerized deployment
+- Exposes port 8000
+- CMD: `uvicorn app.main:app --host 0.0.0.0 --port 8000`
+TODO: Fill in details about deployment to cloud providers, CI/CD, or other environments.
+
+<!-- ## Contributing
+
+TODO: Add guidelines for contributing, code style, pull requests, etc. -->
+
+<!-- ## License
+
+TODO: Specify the license for your project (MIT, Apache, etc.) -->
+
+<!-- ## Acknowledgements
+
+TODO: Credit any libraries, tutorials, or contributors. -->
