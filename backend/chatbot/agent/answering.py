@@ -21,7 +21,7 @@ SYSTEM_PROMPT = (
 )
 
 
-def get_tools(verbose: bool) -> List[BaseTool]:
+async def get_tools(verbose: bool) -> List[BaseTool]:
     @tool
     def answer(
         reasoning: Annotated[
@@ -52,9 +52,10 @@ def get_tools(verbose: bool) -> List[BaseTool]:
     return [answer]
 
 
-def create_agent(
+async def create_agent(
     model: BaseLanguageModel,
     tools: List[BaseTool],
+    name: str,
     store: Optional[BaseStore] = None,
     checkpointer: Optional[BaseCheckpointSaver] = None,
 ) -> CompiledStateGraph:
@@ -75,6 +76,7 @@ def create_agent(
         "tools": tools,
         "state_schema": AnsweringState,
         "prompt": SYSTEM_PROMPT,
+        "name": name,
     }
     if store is not None:
         kwargs["store"] = store

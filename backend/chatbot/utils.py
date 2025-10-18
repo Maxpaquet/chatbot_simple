@@ -7,7 +7,7 @@ from dotenv import load_dotenv
 load_dotenv()
 
 
-def get_model(
+async def get_model(
     model_name: Literal[
         "gemini-flash", "gemini-pro", "gemini-flash-lite"
     ] = "gemini-flash-lite",

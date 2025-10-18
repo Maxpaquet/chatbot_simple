@@ -78,7 +78,7 @@ def tool_executer(state: AnsweringState) -> Dict:
     return {"messages": ToolMessage(content=str(result), tool_call_id=tool_call_id)}
 
 
-def create_mock_graph(
+async def create_mock_graph(
     checkpointer: Optional[BaseCheckpointSaver] = None,
 ):
     graph = StateGraph(state_schema=AnsweringState)
