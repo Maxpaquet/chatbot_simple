@@ -14,9 +14,6 @@ Simple chatbot with FastAPI. This project aims to develop my skills with FastAPI
 - [Development](#development)
 - [Testing](#testing)
 - [Deployment](#deployment)
-- [Contributing](#contributing)
-- [License](#license)
-- [Acknowledgements](#acknowledgements)
 
 ---
 
