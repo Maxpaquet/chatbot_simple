@@ -50,3 +50,7 @@ class Thread(BaseModel):
 class Event(BaseModel):
     event: str = Field(..., description="The type of event.")
     data: Optional[Any] = Field(None, description="The data associated with the event.")
+
+
+class AgentNames(BaseModel):
+    names: List[str] = Field(..., description="List of agent names.")
