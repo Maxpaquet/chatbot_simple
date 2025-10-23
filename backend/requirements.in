@@ -9,3 +9,11 @@ pydantic==2.11.7
 langgraph-checkpoint-sqlite
 nest_asyncio
 pytest
+fastapi
+sqlalchemy
+alembic
+passlib[bcrypt]
+python-jose
+pydantic-settings
+python-dotenv
+psycopg2-binary
