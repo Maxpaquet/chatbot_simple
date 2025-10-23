@@ -11,8 +11,9 @@
     - [x] Implement pytest for the route
 - [x] Implement the `/agent/list_agents/`
 - [ ] Implement a `test_db` when mock/test variables are set to `True`
-- [ ] Implement the logic to maintain a `profile` of the user based on previous conversation.
 - [ ] Implement an authentication for the user (https://medium.com/@wangarraakoth/user-authentication-in-fastapi-using-python-3b51af11b38d)
+- [ ] Implement the logic to maintain a `profile` of the user based on previous conversation.
+    - [ ] Save all questions-answers for a given user id.
 
 ### Frontend - To do list
 
