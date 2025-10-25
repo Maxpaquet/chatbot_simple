@@ -5,7 +5,7 @@ from langgraph.checkpoint.base import BaseCheckpointSaver
 from langgraph.graph.state import CompiledStateGraph
 from langgraph.pregel import Pregel
 from chatbot.agent.answering import create_agent, get_tools
-from chatbot.utils import get_model
+from chatbot.utils import aget_model
 
 
 async def get_agent(
@@ -19,7 +19,7 @@ async def get_agent(
         agent = await create_mock_graph(checkpointer=checkpointer)
         return agent
 
-    llm = await get_model("gemini-flash-lite", temperature=0.0)
+    llm = await aget_model("gemini-flash-lite", temperature=0.0)
     tools = await get_tools(verbose)
     agent = await create_agent(llm, tools, name="default", checkpointer=checkpointer)
     return agent
@@ -40,7 +40,7 @@ async def get_agents_dict(
 
             agents_dict[name] = await create_mock_graph(checkpointer=checkpointer)
         else:
-            llm = await get_model("gemini-flash-lite", temperature=0.0)
+            llm = await aget_model("gemini-flash-lite", temperature=0.0)
             tools = await get_tools(verbose)
             agents_dict[name] = await create_agent(
                 llm,
