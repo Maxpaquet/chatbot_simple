@@ -9,7 +9,7 @@ from langgraph.checkpoint.sqlite import SqliteSaver
 from langchain_core.runnables import RunnableConfig
 
 from chatbot.agent.answering import create_agent, get_tools, AnsweringState
-from chatbot.utils import get_model
+from chatbot.utils import aget_model
 from chatbot.services.utils import prep_input
 
 HERE = Path(__file__).parent
@@ -17,7 +17,7 @@ HERE = Path(__file__).parent
 CHECKPOINT_SQLITE = f"{HERE}/../data/checkpoint.db"
 
 if __name__ == "__main__":
-    llm = get_model("gemini-flash-lite", temperature=0.0)
+    llm = aget_model("gemini-flash-lite", temperature=0.0)
     tools: List[BaseTool] = get_tools(verbose=True)
 
     thread_id = str(uuid4())
