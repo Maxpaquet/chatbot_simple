@@ -24,3 +24,5 @@ pwdlib
 python-multipart
 pytest-asyncio
 loguru
+ollama
+langchain-ollama

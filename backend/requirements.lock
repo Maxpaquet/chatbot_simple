@@ -109,6 +109,7 @@ httpx==0.28.1
     #   jupyterlab
     #   langgraph-sdk
     #   langsmith
+    #   ollama
 idna==3.11
     # via
     #   anyio
@@ -205,10 +206,13 @@ langchain-core==0.3.74
     # via
     #   -r requirements.in
     #   langchain-google-genai
+    #   langchain-ollama
     #   langgraph
     #   langgraph-checkpoint
     #   langgraph-prebuilt
 langchain-google-genai==2.1.9
+    # via -r requirements.in
+langchain-ollama==0.3.7
     # via -r requirements.in
 langgraph==0.6.6
     # via -r requirements.in
@@ -265,6 +269,10 @@ notebook-shim==0.2.4
     # via
     #   jupyterlab
     #   notebook
+ollama==0.6.0
+    # via
+    #   -r requirements.in
+    #   langchain-ollama
 orjson==3.11.4
     # via
     #   langgraph-sdk
@@ -342,6 +350,7 @@ pydantic==2.11.7
     #   langchain-google-genai
     #   langgraph
     #   langsmith
+    #   ollama
     #   pydantic-settings
 pydantic-core==2.33.2
     # via pydantic
