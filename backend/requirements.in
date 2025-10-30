@@ -17,3 +17,4 @@ python-jose
 pydantic-settings
 python-dotenv
 psycopg2-binary
+pyright

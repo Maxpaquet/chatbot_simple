@@ -251,6 +251,8 @@ nest-asyncio==1.6.0
     # via
     #   -r requirements.in
     #   ipykernel
+nodeenv==1.9.1
+    # via pyright
 notebook==7.4.7
     # via jupyter
 notebook-shim==0.2.4
@@ -344,6 +346,8 @@ pygments==2.19.2
     #   jupyter-console
     #   nbconvert
     #   pytest
+pyright==1.1.407
+    # via -r requirements.in
 pytest==8.4.2
     # via -r requirements.in
 python-dateutil==2.9.0.post0
@@ -466,6 +470,7 @@ typing-extensions==4.15.0
     #   langchain-core
     #   pydantic
     #   pydantic-core
+    #   pyright
     #   referencing
     #   sqlalchemy
     #   starlette
