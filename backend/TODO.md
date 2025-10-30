@@ -19,7 +19,7 @@
 # 🛡️ Authentication & Security Plan (FastAPI Backend)
 
 ## Overview
-This plan outlines the steps to implement a **secure authentication system** and **data encryption** layer for a FastAPI backend.  
+This plan outlines the steps to implement a **secure authentication system** and **data encryption** layer for a FastAPI backend.
 Frontend integration (login/register UI) and email-based password setup are deferred to a later phase.
 
 ---
@@ -40,8 +40,8 @@ Frontend integration (login/register UI) and email-based password setup are defe
   ALGORITHM=HS256
   DATABASE_URL=
   ```
-- Reference:  
-  - [FastAPI Security (OAuth2 + JWT)](https://fastapi.tiangolo.com/tutorial/security/oauth2-jwt/)  
+- Reference:
+  - [FastAPI Security (OAuth2 + JWT)](https://fastapi.tiangolo.com/tutorial/security/oauth2-jwt/)
   - [Better Stack: Authentication with FastAPI](https://betterstack.com/community/guides/scaling-python/authentication-fastapi/)
 
 ---
@@ -99,6 +99,10 @@ Frontend integration (login/register UI) and email-based password setup are defe
 
 ---
 
+### **6. Use Databases through SQLAlchemy
+- Reference: [FastAPI auth with db](https://betterstack.com/community/guides/scaling-python/authentication-fastapi/)
+---
+
 ## 🔒 Phase 2 — Data Encryption & Security
 
 ### **6. Encrypt Sensitive Data**
@@ -107,8 +111,8 @@ Frontend integration (login/register UI) and email-based password setup are defe
   - Field-level encryption (recommended)
 - Use AES symmetric encryption via `cryptography` library.
 - Store the encryption key in environment variables.
-- Reference:  
-  - [Python Cryptography Docs](https://cryptography.io/en/latest/)  
+- Reference:
+  - [Python Cryptography Docs](https://cryptography.io/en/latest/)
   - [Handling Secrets Securely in FastAPI](https://www.getorchestra.io/guides/fastapi-secrets-management-handling-sensitive-data-with-secretstr-and-secretbytes)
 
 ---
@@ -119,8 +123,8 @@ Frontend integration (login/register UI) and email-based password setup are defe
 - Enable CORS if frontend is on a separate domain.
 - Never log sensitive data.
 - Consider:
-  - Rate limiting login attempts  
-  - Centralized secret management  
+  - Rate limiting login attempts
+  - Centralized secret management
   - Regular token rotation
 - References:
   - [8 Best Practices to Secure FastAPI](https://medium.com/@zaman.rahimi.rz/8-best-practices-to-make-python-fastapi-secure-785d75368a6e)
@@ -132,7 +136,7 @@ Frontend integration (login/register UI) and email-based password setup are defe
 
 ### **8. Email-based Password Setup**
 - Later, implement:
-  - `POST /auth/send-password-setup` → sends email with token  
+  - `POST /auth/send-password-setup` → sends email with token
   - `POST /auth/set-password` → verifies token & sets password
 - Use `fastapi-mail` or an external SMTP provider (e.g., SendGrid).
 - References:
