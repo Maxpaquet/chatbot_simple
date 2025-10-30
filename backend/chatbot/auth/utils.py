@@ -12,3 +12,4 @@ MAX_LEN_CRYPT = 72  # Max length for bcrypt
 
 # OAuth2 scheme
 OAUTH2_SCHEME = OAuth2PasswordBearer(tokenUrl="token")
+
