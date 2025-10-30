@@ -1,12 +1,12 @@
-from langchain_core.messages import HumanMessage
-from fastapi.testclient import TestClient
 import asyncio
 from uuid import uuid4
 
-from chatbot.messages.models import MessageOut, MessageIn, Author
-from chatbot.services.models import ChatRequest, Thread
+from fastapi.testclient import TestClient
+from langchain_core.messages import HumanMessage
 
 from chatbot.api.main import app
+from chatbot.messages.models import Author, MessageIn, MessageOut
+from chatbot.services.models import ChatRequest, Thread
 
 
 async def _thread_endpoint(client: TestClient):
@@ -17,10 +17,7 @@ async def _thread_endpoint(client: TestClient):
         author=Author.user,
         content="What is the capital of France?",
     )
-    chat_request = ChatRequest(
-        thread_id=thread_id,
-        input=message,
-    )
+    chat_request = ChatRequest(thread_id=thread_id, input=message, agent_id=None)
     payload = chat_request.model_dump()
 
     response = client.post(f"/agent/chat/{thread_id}", json=payload)
