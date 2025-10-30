@@ -1,15 +1,12 @@
+from typing import Annotated, Callable
+
 from fastapi import APIRouter, Depends
 from fastapi.responses import StreamingResponse
-from typing import Annotated, Dict, Any, List, Callable
 
-
-from chatbot.api.lifespan import lifespan, AgentLifespanState, get_state
-
-from chatbot.services.models import ChatRequest, ThreadID, Thread, AgentNames
-from chatbot.services.models import Event
-
+from chatbot.api.lifespan import AgentLifespanState, get_state, lifespan
 from chatbot.services.chat import service_agent_chat
-from chatbot.services.thread import service_get_thread, service_get_agents_name
+from chatbot.services.models import AgentNames, ChatRequest, Event, Thread, ThreadID
+from chatbot.services.thread import service_get_agents_name, service_get_thread
 
 router = APIRouter(prefix="/agent", tags=["agent"], lifespan=lifespan)
 
