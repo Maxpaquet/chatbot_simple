@@ -2,9 +2,9 @@
 #    uv pip compile requirements.in -o requirements.lock
 aiosqlite==0.21.0
     # via langgraph-checkpoint-sqlite
-alembic==1.17.0
+alembic==1.17.1
     # via -r requirements.in
-annotated-doc==0.0.2
+annotated-doc==0.0.3
     # via fastapi
 annotated-types==0.7.0
     # via pydantic
@@ -31,11 +31,11 @@ attrs==25.4.0
     #   referencing
 babel==2.17.0
     # via jupyterlab-server
-bcrypt==5.0.0
-    # via passlib
+bcrypt==4.3.0
+    # via -r requirements.in
 beautifulsoup4==4.14.2
     # via nbconvert
-bleach==6.2.0
+bleach==6.3.0
     # via nbconvert
 cachetools==6.2.1
     # via google-auth
@@ -45,7 +45,9 @@ certifi==2025.10.5
     #   httpx
     #   requests
 cffi==2.0.0
-    # via argon2-cffi-bindings
+    # via
+    #   argon2-cffi-bindings
+    #   cryptography
 charset-normalizer==3.4.4
     # via requests
 click==8.3.0
@@ -54,6 +56,8 @@ comm==0.2.3
     # via
     #   ipykernel
     #   ipywidgets
+cryptography==46.0.3
+    # via pyjwt
 debugpy==1.8.17
     # via ipykernel
 decorator==5.2.1
@@ -66,7 +70,7 @@ ecdsa==0.19.1
     # via python-jose
 executing==2.2.1
     # via stack-data
-fastapi==0.120.0
+fastapi==0.120.2
     # via -r requirements.in
 fastjsonschema==2.21.2
     # via nbformat
@@ -76,9 +80,9 @@ fqdn==1.5.1
     # via jsonschema
 google-ai-generativelanguage==0.6.18
     # via langchain-google-genai
-google-api-core==2.27.0
+google-api-core==2.28.1
     # via google-ai-generativelanguage
-google-auth==2.41.1
+google-auth==2.42.0
     # via
     #   google-ai-generativelanguage
     #   google-api-core
@@ -113,7 +117,7 @@ idna==3.11
     #   requests
 iniconfig==2.3.0
     # via pytest
-ipykernel==7.0.1
+ipykernel==7.1.0
     # via
     #   jupyter
     #   jupyter-console
@@ -219,10 +223,12 @@ langgraph-prebuilt==0.6.5
     # via langgraph
 langgraph-sdk==0.2.9
     # via langgraph
-langsmith==0.4.37
+langsmith==0.4.38
     # via langchain-core
-lark==1.3.0
+lark==1.3.1
     # via rfc3987-syntax
+loguru==0.7.3
+    # via -r requirements.in
 mako==1.3.10
     # via alembic
 markupsafe==3.0.3
@@ -259,7 +265,7 @@ notebook-shim==0.2.4
     # via
     #   jupyterlab
     #   notebook
-orjson==3.11.3
+orjson==3.11.4
     # via
     #   langgraph-sdk
     #   langsmith
@@ -282,7 +288,7 @@ pandocfilters==1.5.1
     # via nbconvert
 parso==0.8.5
     # via jedi
-passlib==1.7.4
+passlib==1.7.3
     # via -r requirements.in
 pexpect==4.9.0
     # via ipython
@@ -307,7 +313,7 @@ protobuf==6.33.0
     #   googleapis-common-protos
     #   grpcio-status
     #   proto-plus
-psutil==7.1.1
+psutil==7.1.2
     # via ipykernel
 psycopg2-binary==2.9.11
     # via -r requirements.in
@@ -317,6 +323,8 @@ ptyprocess==0.7.0
     #   terminado
 pure-eval==0.2.3
     # via stack-data
+pwdlib==0.3.0
+    # via -r requirements.in
 pyasn1==0.6.1
     # via
     #   pyasn1-modules
@@ -346,15 +354,21 @@ pygments==2.19.2
     #   jupyter-console
     #   nbconvert
     #   pytest
+pyjwt==2.10.1
+    # via -r requirements.in
 pyright==1.1.407
     # via -r requirements.in
 pytest==8.4.2
+    # via
+    #   -r requirements.in
+    #   pytest-asyncio
+pytest-asyncio==1.2.0
     # via -r requirements.in
 python-dateutil==2.9.0.post0
     # via
     #   arrow
     #   jupyter-client
-python-dotenv==1.1.1
+python-dotenv==1.2.1
     # via
     #   -r requirements.in
     #   dotenv
@@ -363,6 +377,8 @@ python-jose==3.5.0
     # via -r requirements.in
 python-json-logger==4.0.0
     # via jupyter-events
+python-multipart==0.0.20
+    # via -r requirements.in
 pyyaml==6.0.3
     # via
     #   jupyter-events
@@ -425,7 +441,7 @@ sqlite-vec==0.1.6
     # via langgraph-checkpoint-sqlite
 stack-data==0.6.3
     # via ipython
-starlette==0.48.0
+starlette==0.49.1
     # via fastapi
 tenacity==9.1.2
     # via langchain-core
@@ -471,6 +487,7 @@ typing-extensions==4.15.0
     #   pydantic
     #   pydantic-core
     #   pyright
+    #   pytest-asyncio
     #   referencing
     #   sqlalchemy
     #   starlette

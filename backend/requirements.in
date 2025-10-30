@@ -12,9 +12,15 @@ pytest
 fastapi
 sqlalchemy
 alembic
-passlib[bcrypt]
+passlib==1.7.3
+bcrypt==4.3.0
 python-jose
 pydantic-settings
 python-dotenv
 psycopg2-binary
 pyright
+pyjwt[crypto]
+pwdlib
+python-multipart
+pytest-asyncio
+loguru
