@@ -1,8 +1,8 @@
-from fastapi import FastAPI
-from pydantic import BaseModel
-from typing import Dict
-from fastapi.middleware.cors import CORSMiddleware
 import logging
+from typing import Dict
+
+from fastapi import FastAPI
+from fastapi.middleware.cors import CORSMiddleware
 
 from chatbot.api.routes import router
 
