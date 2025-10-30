@@ -5,6 +5,7 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
 from chatbot.api.routes import router
+from chatbot.api.routes_auth import router_login
 
 app = FastAPI(title="Example API", version="0.1.0")
 
@@ -31,6 +32,7 @@ app.add_middleware(
 
 
 app.include_router(router)
+app.include_router(router_login)
 
 
 @app.get("/health", response_model=Dict[str, str], tags=["Root"])
