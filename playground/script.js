@@ -7,7 +7,7 @@ const rl = readline.createInterface({
 });
 
 
-
+// ######################################################
 // rl.question('Are you the boss? (yes/no) ', (answer) => {
 //     if (answer.trim().toLowerCase() === 'yes' || answer.trim().toLowerCase() === 'y') {
 //         rl.question('How old are you? ', (age) => {
@@ -21,19 +21,20 @@ const rl = readline.createInterface({
 // }
 // );
 
-rl.question('Are you the boss? (yes/no) ', function (answer) {
-    if (answer.trim().toLowerCase() === 'yes' || answer.trim().toLowerCase() === 'y') {
-        rl.question('How old are you? ', function (age) {
-            console.log(age);
-            rl.close();
-        });
-    } else {
-        console.log('Access denied.');
-        rl.close();
-    }
-});
+// ######################################################
+// rl.question('Are you the boss? (yes/no) ', function (answer) {
+//     if (answer.trim().toLowerCase() === 'yes' || answer.trim().toLowerCase() === 'y') {
+//         rl.question('How old are you? ', function (age) {
+//             console.log(age);
+//             rl.close();
+//         });
+//     } else {
+//         console.log('Access denied.');
+//         rl.close();
+//     }
+// });
 
-
+// ######################################################
 // let sum = 0;
 
 // function ask(sum) {
@@ -56,7 +57,7 @@ rl.question('Are you the boss? (yes/no) ', function (answer) {
 
 // ask(sum);
 
-
+// ######################################################
 // function sayHi(name) {   // (1) create
 //     str_ = "Hello" + ' ' + name
 //     console.log(str_);
@@ -68,3 +69,15 @@ rl.question('Are you the boss? (yes/no) ', function (answer) {
 // res = func("Max"); // Hello     // (3) run the copy (it works)!
 
 // console.log("After fun called\n" + res)
+
+// ######################################################
+
+let user = {
+  name: "John",
+  age: 30
+};
+
+let key = prompt("What do you want to know about the user?", "name");
+
+// access by variable
+console.log( user[key] );
