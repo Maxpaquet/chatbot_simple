@@ -33,3 +33,5 @@ htmlcov/
 
 # Local config
 *.sqlite3
+
+*.pdf
