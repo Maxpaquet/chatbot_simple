@@ -1,8 +1,9 @@
-from typing import Literal
 import os
+from typing import Literal
+
+from dotenv import load_dotenv
 from langchain_google_genai import ChatGoogleGenerativeAI
 from langchain_ollama import ChatOllama, OllamaEmbeddings
-from dotenv import load_dotenv
 
 load_dotenv()
 
@@ -45,7 +46,7 @@ def _create_model_ollama(model_name: str, temperature: float) -> ChatOllama:
 async def aget_model(
     service: Literal["gemini", "ollama"] = "ollama",
     model_name: Literal[
-        "gemini", "gemini-pro", "gemini-flash-lite"
+        "gemini", "gemini-pro", "gemini-flash-lite", "qwen3:8b"
     ] = "gemini-flash-lite",
     temperature=0.0,
 ):
@@ -58,12 +59,18 @@ async def aget_model(
 
 
 def get_model(
+    service: Literal["gemini", "ollama"] = "ollama",
     model_name: Literal[
-        "gemini", "gemini-pro", "gemini-flash-lite"
-    ] = "gemini-flash-lite",
+        "gemini", "gemini-pro", "gemini-flash-lite", "qwen3:8b"
+    ] = "qwen3:8b",
     temperature=0.0,
 ):
-    return _create_model_gemini(model_name, temperature)
+    if service == "ollama":
+        return _create_model_ollama(model_name, temperature)
+    elif service == "gemini":
+        return _create_model_gemini(model_name, temperature)
+    else:
+        raise ValueError(f"Unknown service: {service}. Supported: gemini, ollama.")
 
 
 def _create_embedding_model_ollama(model_name: str) -> OllamaEmbeddings:
@@ -77,7 +84,7 @@ def _create_embedding_model_ollama(model_name: str) -> OllamaEmbeddings:
 def get_embedding_model(
     serive: Literal["ollama"] = "ollama",
     model_name: Literal["qwen3-embedding:0.6b"] = "qwen3-embedding:0.6b",
-):
+) -> OllamaEmbeddings:
     if serive == "ollama":
         return _create_embedding_model_ollama(model_name)
     else:

@@ -1,8 +1,8 @@
-from typing_extensions import TypedDict
-from typing import Annotated, Optional, List
+from typing import Annotated, List, Optional
 
-from langgraph.graph.message import add_messages, AnyMessage
-from langchain_core.messages import BaseMessage
+from langchain_core.documents import Document
+from langgraph.graph.message import AnyMessage, add_messages
+from typing_extensions import TypedDict
 
 
 class Answer(TypedDict):
@@ -11,5 +11,6 @@ class Answer(TypedDict):
 
 class AnsweringState(TypedDict):
     messages: Annotated[List[AnyMessage], add_messages]
-    answer: Optional[Answer]
+    answer: Optional[str]
+    documents: Optional[List[Document]]
     remaining_steps: int
