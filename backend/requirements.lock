@@ -207,12 +207,15 @@ langchain-core==0.3.74
     #   -r requirements.in
     #   langchain-google-genai
     #   langchain-ollama
+    #   langchain-text-splitters
     #   langgraph
     #   langgraph-checkpoint
     #   langgraph-prebuilt
 langchain-google-genai==2.1.9
     # via -r requirements.in
 langchain-ollama==0.3.7
+    # via -r requirements.in
+langchain-text-splitters==0.3.9
     # via -r requirements.in
 langgraph==0.6.6
     # via -r requirements.in

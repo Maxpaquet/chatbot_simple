@@ -26,3 +26,4 @@ pytest-asyncio
 loguru
 ollama
 langchain-ollama
+langchain-text-splitters
