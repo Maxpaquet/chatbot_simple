@@ -36,3 +36,6 @@ if __name__ == "__main__":
     res_ = agent.invoke(state)
     res: AnsweringState = cast(AnsweringState, res_)
     print(res)
+
+    for m in res["messages"]:
+        m.pretty_print()
