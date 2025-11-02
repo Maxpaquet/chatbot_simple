@@ -1,30 +1,24 @@
-import sys
 from typing import Annotated, Callable, List, Literal, Optional, TypedDict
 
 from langchain_core.documents import Document
-from langchain_core.language_models import (
-    BaseChatModel,
-    BaseLanguageModel,
-    LanguageModelInput,
-)
+from langchain_core.language_models import BaseChatModel, LanguageModelInput
 from langchain_core.messages import (
+    AIMessage,
     AnyMessage,
     BaseMessage,
     HumanMessage,
     SystemMessage,
     ToolMessage,
 )
-from langchain_core.prompts import ChatPromptTemplate, MessagesPlaceholder
 from langchain_core.runnables import Runnable
 from langchain_core.tools import BaseTool, tool
 from langchain_core.tools.base import InjectedToolCallId
 from langchain_core.vectorstores import VectorStore
-from langchain_ollama import ChatOllama
+from langchain_ollama import OllamaLLM
 from langgraph.checkpoint.base import BaseCheckpointSaver
 from langgraph.graph import END, StateGraph
-from langgraph.graph.message import add_messages
 from langgraph.graph.state import CompiledStateGraph
-from langgraph.prebuilt import InjectedState, ToolNode, create_react_agent
+from langgraph.prebuilt import InjectedState, ToolNode
 from langgraph.store.base import BaseStore
 from langgraph.types import Command
 
@@ -122,10 +116,6 @@ def choose_tools_node(
 ) -> Callable:
 
     def process(state: AnsweringState):
-        # messages = ChatPromptTemplate.from_messages([
-        #     ("system", system_prompt),
-        #     MessagesPlaceholder(variable_name="messages"),
-        # ])
         messages: List[AnyMessage] = [SystemMessage(content=system_prompt)] + state.get(
             "messages", []
         )
@@ -143,11 +133,19 @@ def choose_tools_node(
 def should_continue(state: AnsweringState):
     for m in state["messages"]:
         m.pretty_print()
+
+    if isinstance(state["messages"][-1], AIMessage):
+        return END
+
     # Find the latest ToolMessage in reverse order
     last_tool_message = next(
         (m for m in reversed(state["messages"]) if isinstance(m, ToolMessage)), None
     )
     assert last_tool_message is not None, "No ToolMessage found in messages."
+    if last_tool_message is None:
+        print(f"[should_continue] No ToolMessage found, continuing to choose tools.")
+        return "choose_tools"
+
     if last_tool_message.name == "formulate_answer":
         print(f"[should_continue] Ending workflow.")
         return END
@@ -156,7 +154,7 @@ def should_continue(state: AnsweringState):
 
 
 def create_agent(
-    llm: BaseChatModel,
+    llm: OllamaLLM,
     tools: List[BaseTool],
     store: Optional[BaseStore] = None,
     checkpointer: Optional[BaseCheckpointSaver] = None,
