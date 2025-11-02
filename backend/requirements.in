@@ -27,3 +27,5 @@ loguru
 ollama
 langchain-ollama
 langchain-text-splitters
+pdfplumber
+numpy

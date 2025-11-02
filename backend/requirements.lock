@@ -49,7 +49,9 @@ cffi==2.0.0
     #   argon2-cffi-bindings
     #   cryptography
 charset-normalizer==3.4.4
-    # via requests
+    # via
+    #   pdfminer-six
+    #   requests
 click==8.3.0
     # via uvicorn
 comm==0.2.3
@@ -57,7 +59,9 @@ comm==0.2.3
     #   ipykernel
     #   ipywidgets
 cryptography==46.0.3
-    # via pyjwt
+    # via
+    #   pdfminer-six
+    #   pyjwt
 debugpy==1.8.17
     # via ipykernel
 decorator==5.2.1
@@ -272,6 +276,8 @@ notebook-shim==0.2.4
     # via
     #   jupyterlab
     #   notebook
+numpy==2.3.4
+    # via -r requirements.in
 ollama==0.6.0
     # via
     #   -r requirements.in
@@ -301,8 +307,14 @@ parso==0.8.5
     # via jedi
 passlib==1.7.3
     # via -r requirements.in
+pdfminer-six==20250506
+    # via pdfplumber
+pdfplumber==0.11.7
+    # via -r requirements.in
 pexpect==4.9.0
     # via ipython
+pillow==12.0.0
+    # via pdfplumber
 platformdirs==4.5.0
     # via jupyter-core
 pluggy==1.6.0
@@ -368,6 +380,8 @@ pygments==2.19.2
     #   pytest
 pyjwt==2.10.1
     # via -r requirements.in
+pypdfium2==5.0.0
+    # via pdfplumber
 pyright==1.1.407
     # via -r requirements.in
 pytest==8.4.2
