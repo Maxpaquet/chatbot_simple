@@ -143,9 +143,12 @@ def choose_tools_node(
 def should_continue(state: AnsweringState):
     for m in state["messages"]:
         m.pretty_print()
-    last_message = state["messages"][-1]
-    assert isinstance(last_message, ToolMessage)
-    if last_message.name == "formulate_answer":
+    # Find the latest ToolMessage in reverse order
+    last_tool_message = next(
+        (m for m in reversed(state["messages"]) if isinstance(m, ToolMessage)), None
+    )
+    assert last_tool_message is not None, "No ToolMessage found in messages."
+    if last_tool_message.name == "formulate_answer":
         print(f"[should_continue] Ending workflow.")
         return END
     print(f"[should_continue] Continuing to choose tools.")
