@@ -1,16 +1,6 @@
 from typing import Dict
 
-from sqlalchemy import (
-    Boolean,
-    Column,
-    DateTime,
-    Engine,
-    ForeignKey,
-    Integer,
-    String,
-    Table,
-    create_engine,
-)
+from sqlalchemy import Column, Engine, ForeignKey, Integer, Table, create_engine
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker
 

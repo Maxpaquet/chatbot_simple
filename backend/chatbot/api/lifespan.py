@@ -4,7 +4,6 @@ from dataclasses import dataclass
 from fastapi import Request, FastAPI
 from pathlib import Path
 
-from langgraph.checkpoint.base import BaseCheckpointSaver
 from langgraph.pregel import Pregel
 from langgraph.checkpoint.sqlite.aio import AsyncSqliteSaver
 from langgraph.checkpoint.sqlite import SqliteSaver
