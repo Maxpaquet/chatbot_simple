@@ -8,10 +8,15 @@
     - [x] Add the agent id as optional param (enables later the capability the agent selection by the user)
     - [x] Implement pytest for the route
 - [x] Add route `/agent/thread/{thread_id}` to pull the entire thread (representing the conversation) from the sqlite db.
-    - [x] Implement pytest for the route
-- [x] Implement the `/agent/list_agents/`
-- [ ] Implement a `test_db` when mock/test variables are set to `True`
+    - [x] Implement pytest for the route.
+- [x] Implement the `/agent/list_agents/`.
+- [ ] Implement a `test_db` when mock/test variables are set to `True`.
 - [ ] Implement an authentication for the user (https://medium.com/@wangarraakoth/user-authentication-in-fastapi-using-python-3b51af11b38d)
+  - [ ] User registration. Endpoint: `POST /auth/register`.
+  - [ ] User Login & Token Authentication. Endpoint: `POST /auth/login`.
+  - [ ] Database to store users data.
+- [ ] Implement an access to local model through Docker.
+  - [ ] 
 - [ ] Implement the logic to maintain a `profile` of the user based on previous conversation.
     - [ ] Save all questions-answers for a given user id.
 
@@ -26,7 +31,7 @@ Frontend integration (login/register UI) and email-based password setup are defe
 
 ## ⚙️ Phase 1 — Core Authentication
 
-### **1. Project Setup**
+### DONE **1. Project Setup**
 - Initialize a FastAPI project with:
   - **SQLAlchemy** (or **Tortoise ORM**) for database
   - **Alembic** for migrations
@@ -46,7 +51,7 @@ Frontend integration (login/register UI) and email-based password setup are defe
 
 ---
 
-### **2. User Model & Database Schema**
+### DONE **2. User Model & Database Schema**
 - Define a `User` table with:
   - `id`
   - `email`
@@ -87,7 +92,7 @@ Frontend integration (login/register UI) and email-based password setup are defe
 
 ---
 
-### **5. Protect Routes**
+### DONE **5. Protect Routes**
 - Secure routes using dependency injection:
   ```python
   @app.get("/protected")
