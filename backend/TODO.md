@@ -1,5 +1,11 @@
 ## Development
 
+
+### AI agents - To do list: The AI agents should build a report with the input provided by the user.
+- [ ] Implement the report the ai agents should create.
+- [ ] Implement the logic to maintain a `profile` of the user based on previous conversation.
+    - [ ] Save all questions-answers for a given user id.
+
 ### Backend - To do list
 
 - [x] Build a mock agent making proper tool call and respecting the tool_call_id policy of OpenAI.
@@ -16,9 +22,6 @@
   - [ ] User Login & Token Authentication. Endpoint: `POST /auth/login`.
   - [ ] Database to store users data.
 - [ ] Implement an access to local model through Docker.
-  - [ ] 
-- [ ] Implement the logic to maintain a `profile` of the user based on previous conversation.
-    - [ ] Save all questions-answers for a given user id.
 
 ### Backend - Authentication
 # 🛡️ Authentication & Security Plan (FastAPI Backend)
