@@ -7,16 +7,21 @@ from chatbot.auth.models import UserInDB
 from chatbot.auth.utils import ALGORITHM, SECRET_KEY
 
 
-def create_token(user: UserInDB) -> Dict[str, str]:
+def create_token(user: UserInDB | str) -> Dict[str, str]:
     """Create a simple token dictionary (not JWT)."""
-    return {"sub": f"username:{user.username}"}
+    if isinstance(user, UserInDB):
+        return {"sub": f"username:{user.username}"}
+    elif isinstance(user, str):
+        return {"sub": f"username:{user}"}
 
 
-def sub_to_username(sub: str) -> str:
-    """Extract username from the 'sub' field."""
-    prefix = "username:"
+def sub_to_username(sub: str, prefix: str = "username:") -> str:
+    """Extract username from the 'sub' field, robust to 'sub:' or 'sub: ' prefix."""
     if sub.startswith(prefix):
-        return sub[len(prefix) :]
+        # Remove prefix and any leading spaces after it
+        username = sub[len(prefix) :].lstrip()
+        if username:
+            return username
     raise ValueError("Invalid subject format")
 
 

@@ -3,7 +3,7 @@ from typing import Any, Dict
 from fastapi import Depends, HTTPException, status
 from jose import JWTError, jwt
 
-from chatbot.auth.db import fake_users_db
+from chatbot.auth.db import get_db
 from chatbot.auth.models import User, UserInDB
 from chatbot.auth.token import sub_to_username
 from chatbot.auth.utils import (
@@ -50,7 +50,9 @@ async def authenticate_user(
     return user
 
 
-async def get_current_user(token: str = Depends(OAUTH2_SCHEME)) -> UserInDB:
+async def get_current_user(
+    token: str = Depends(OAUTH2_SCHEME), db: Dict = Depends(get_db)
+) -> UserInDB:
     """Get the current user from the JWT token."""
     credentials_exception = HTTPException(
         status_code=status.HTTP_401_UNAUTHORIZED,
@@ -58,14 +60,13 @@ async def get_current_user(token: str = Depends(OAUTH2_SCHEME)) -> UserInDB:
         headers={"WWW-Authenticate": "Bearer"},
     )
 
-    db = fake_users_db
-
     try:
         payload: Dict[str, Any] = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
         sub = payload.get("sub")
         if sub is None or not isinstance(sub, str):
             raise credentials_exception
-        username: str = sub_to_username(sub)
+        # username = sub.strip()
+        username = sub_to_username(sub)
     except JWTError:
         raise credentials_exception
 
@@ -84,5 +85,4 @@ async def get_current_active_user(
     # Convert UserInDB to User (exclude hashed_password)
     retrieved_user: User = current_user.to_user()
 
-    return retrieved_user
     return retrieved_user
