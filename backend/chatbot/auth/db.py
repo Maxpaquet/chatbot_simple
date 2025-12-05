@@ -10,3 +10,8 @@ fake_users_db: Dict = {
         "disabled": False,
     }
 }
+
+
+async def get_db() -> Dict:
+    """Simulate getting a database connection."""
+    return fake_users_db
