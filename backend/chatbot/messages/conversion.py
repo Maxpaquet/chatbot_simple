@@ -4,7 +4,7 @@ from datetime import date
 
 from langchain_core.messages import BaseMessage
 
-from chatbot.messages.models import MessageIn, MessageOut, Author
+from chatbot.messages.models import MessageOut, Author
 from chatbot.services.models import Thread, ThreadID
 
 

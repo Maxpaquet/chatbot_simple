@@ -1,11 +1,10 @@
 from typing import Dict, Any, List
 
 from langgraph.pregel import Pregel
-from langgraph.checkpoint.base import BaseCheckpointSaver
 from langgraph.checkpoint.sqlite.aio import AsyncSqliteSaver
 from langgraph.checkpoint.sqlite import SqliteSaver
 
-from chatbot.services.models import ChatRequest, ThreadID, Thread, AgentNames
+from chatbot.services.models import ThreadID, Thread, AgentNames
 from chatbot.services.utils import get_agent_state
 from chatbot.messages.conversion import conversion_from_langchain
 

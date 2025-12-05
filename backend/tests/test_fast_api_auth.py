@@ -27,7 +27,7 @@ def test_protected_route():
 
         # Access protected route
         headers = {"Authorization": f"Bearer {access_token}"}
-        response = client.get("/protected", headers=headers)
+        response = client.get("/agent/chat/protected", headers=headers)
         json_data = response.json()
         print(json_data)
         assert response.status_code == 200

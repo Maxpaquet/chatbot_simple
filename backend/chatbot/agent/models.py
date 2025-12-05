@@ -1,12 +1,12 @@
-from typing import Annotated, List, Optional
+from typing import Annotated, List, Optional, TypedDict
 
 from langchain_core.documents import Document
 from langgraph.graph.message import AnyMessage, add_messages
-from typing_extensions import TypedDict
+from pydantic import BaseModel, Field
 
 
-class Answer(TypedDict):
-    item: str
+class Answer(BaseModel):
+    item: str = Field(..., description="The final answer to the user's question")
 
 
 class AnsweringState(TypedDict):

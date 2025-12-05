@@ -1,4 +1,4 @@
-from typing import Annotated, Callable, List, Optional
+from typing import Annotated, Callable, List, Optional, Union
 
 from langchain_core.documents import Document
 from langchain_core.language_models import LanguageModelInput
@@ -13,41 +13,53 @@ from langchain_core.runnables import Runnable
 from langchain_core.tools import BaseTool, tool
 from langchain_core.tools.base import InjectedToolCallId
 from langchain_core.vectorstores import VectorStore
-from langchain_ollama import OllamaLLM
+from langchain_google_genai import ChatGoogleGenerativeAI
+from langchain_ollama import ChatOllama
 from langgraph.checkpoint.base import BaseCheckpointSaver
 from langgraph.graph import END, StateGraph
 from langgraph.graph.state import CompiledStateGraph
 from langgraph.prebuilt import InjectedState, ToolNode
 from langgraph.store.base import BaseStore
 from langgraph.types import Command
+from pydantic import BaseModel
 
 from chatbot.agent.models import Answer, AnsweringState
 from chatbot.agent.utils import MAX_CHAR, documents_to_str
+from chatbot.logging import logger
 
 SYSTEM_PROMPT = (
     """You are an AI assistant that helps people answering their question."""
 )
 
 
-def get_tools(
+async def get_tools(
     vector_store: VectorStore,
+    llm_structured_output: Runnable[LanguageModelInput, Union[dict, BaseModel]],
     k: int = 5,
     verbose: bool = False,
 ) -> List[BaseTool]:
     @tool
-    def answer(
+    async def answer(
         reasoning: Annotated[
             str, "The reasoning behind choosing this tool with the argument"
         ],
-        final_answer: Annotated[str, "The final answer to the question of the user"],
         state: Annotated[AnsweringState, InjectedState],
         tool_call_id: Annotated[str, InjectedToolCallId],
     ):
         """Use this function to formulate the final answer when you have all the documentation to answer. Once you use this tool, the agent will stop."""
         if verbose:
-            print(
-                f"[formulate_answer] final_answer={str(final_answer)}\nreasoning: {reasoning}"
-            )
+            print(f"[formulate_answer] reasoning: {reasoning}")
+        result = llm_structured_output.invoke(input=state["messages"])
+        if isinstance(result, Answer):
+            final_answer = result
+        elif isinstance(result, dict):
+            final_answer = Answer(**result)
+        else:
+            logger.error(f"Unexpected type for final_answer: {type(result)}")
+            final_answer = result
+            # raise TypeError(f"Unexpected type for final_answer: {type(result)}")
+        if verbose:
+            print(f"[formulate_answer] final_answer:\n{str(final_answer)}")
         return Command(
             update={
                 "answer": final_answer,
@@ -62,7 +74,7 @@ def get_tools(
         )
 
     @tool
-    def search(
+    async def search(
         reasoning: Annotated[
             str, "The reasoning behind choosing this tool with the argument"
         ],
@@ -152,8 +164,8 @@ def should_continue(state: AnsweringState):
     return "choose_tools"
 
 
-def create_agent(
-    llm: OllamaLLM,
+async def create_agent(
+    llm: ChatOllama | ChatGoogleGenerativeAI,
     tools: List[BaseTool],
     store: Optional[BaseStore] = None,
     checkpointer: Optional[BaseCheckpointSaver] = None,

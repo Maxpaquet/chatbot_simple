@@ -4,6 +4,8 @@ from fastapi import APIRouter, Depends
 from fastapi.responses import StreamingResponse
 
 from chatbot.api.lifespan import AgentLifespanState, get_state, lifespan
+from chatbot.auth.auth import get_current_active_user
+from chatbot.auth.models import User
 from chatbot.services.chat import service_agent_chat
 from chatbot.services.models import AgentNames, ChatRequest, Event, Thread, ThreadID
 from chatbot.services.thread import service_get_agents_name, service_get_thread
@@ -39,3 +41,9 @@ async def get_agents(*, state: AgentLifespanState = Depends(get_state)) -> Agent
     """Endpoint to list all available agents."""
     agent_names: AgentNames = await service_get_agents_name(state.agent_dict)
     return agent_names
+
+
+@router.get("/chat/protected")
+async def protected_route(current_user: User = Depends(get_current_active_user)):
+    """A protected route that requires authentication."""
+    return {"message": f"Hello, {current_user.username}! This is a protected route."}

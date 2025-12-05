@@ -1,21 +1,17 @@
-from typing import Dict, Any, Optional, List
-import contextlib
 import asyncio
+from typing import Any, Dict, List
+
 import orjson
-
-from langchain_core.messages import convert_to_messages
-from langchain_core.load import load
-from langchain_core.runnables import RunnableConfig
 from langchain_core.messages import HumanMessage
-
-from langgraph.checkpoint.base import BaseCheckpointSaver, Checkpoint
-from langgraph.checkpoint.sqlite.aio import AsyncSqliteSaver
+from langchain_core.runnables import RunnableConfig
+from langgraph.checkpoint.base import Checkpoint
 from langgraph.checkpoint.sqlite import SqliteSaver
+from langgraph.checkpoint.sqlite.aio import AsyncSqliteSaver
 from langgraph.graph.message import AnyMessage
 
+from chatbot.agent.answering import AnsweringState
 from chatbot.messages.models import MessageIn
 from chatbot.services.models import ThreadID
-from chatbot.agent.answering import AnsweringState
 
 
 async def prep_input(message: MessageIn) -> AnsweringState:
@@ -34,6 +30,7 @@ async def prep_input(message: MessageIn) -> AnsweringState:
     prep_input = AnsweringState(
         messages=messages,
         answer=None,
+        documents=None,
         remaining_steps=10,
     )
     return prep_input

@@ -2,10 +2,9 @@ import asyncio
 from uuid import uuid4
 
 from fastapi.testclient import TestClient
-from langchain_core.messages import HumanMessage
 
 from chatbot.api.main import app
-from chatbot.messages.models import Author, MessageIn, MessageOut
+from chatbot.messages.models import Author, MessageIn
 from chatbot.services.models import ChatRequest, Thread
 
 
