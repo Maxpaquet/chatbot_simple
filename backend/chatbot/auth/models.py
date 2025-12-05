@@ -18,7 +18,7 @@ class UserInDB(User):
             username=self.username,
             email=self.email,
             full_name=self.full_name,
-            disabled=self.disabled
+            disabled=self.disabled,
         )
 
 
@@ -27,3 +27,8 @@ class UserCreate(BaseModel):
     email: str
     full_name: str
     password: str
+
+
+class TokenResponse(BaseModel):
+    access_token: str
+    token_type: str
