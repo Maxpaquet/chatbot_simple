@@ -18,10 +18,12 @@
 - [x] Implement the `/agent/list_agents/`.
 - [ ] Implement a `test_db` when mock/test variables are set to `True`.
 - [ ] Implement an authentication for the user (https://medium.com/@wangarraakoth/user-authentication-in-fastapi-using-python-3b51af11b38d)
+  - [x] Implement the token authentication
+  - [x] Make protected routes
   - [ ] User registration. Endpoint: `POST /auth/register`.
   - [ ] User Login & Token Authentication. Endpoint: `POST /auth/login`.
   - [ ] Database to store users data.
-- [ ] Implement an access to local model through Docker.
+- [x] Implement an access to local model through Ollama.
 
 ### Backend - Authentication
 # 🛡️ Authentication & Security Plan (FastAPI Backend)
