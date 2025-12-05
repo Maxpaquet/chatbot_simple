@@ -26,7 +26,6 @@ def test_protected_route():
         print(access_token)
 
         # Access protected route
-        # TODO: Not working
         headers = {"Authorization": f"Bearer {access_token}"}
         response = client.get("/protected", headers=headers)
         json_data = response.json()
