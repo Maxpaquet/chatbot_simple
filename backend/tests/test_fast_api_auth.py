@@ -21,16 +21,17 @@ def test_protected_route():
         data = {"username": "johndoe", "password": "secret"}
         token_response = client.post("/token", data=data)
         assert token_response.status_code == 200
-        print(token_response.json())
+        print(f"Token response: {token_response.json()}")
         access_token = token_response.json()["access_token"]
         print(access_token)
 
         # Access protected route
+        # TODO: Not working
         headers = {"Authorization": f"Bearer {access_token}"}
         response = client.get("/protected", headers=headers)
-        assert response.status_code == 200
         json_data = response.json()
         print(json_data)
+        assert response.status_code == 200
         assert "message" in json_data
         assert "johndoe" in json_data["message"]
 

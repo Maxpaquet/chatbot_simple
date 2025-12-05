@@ -9,13 +9,13 @@ from chatbot.auth.auth import (
     ALGORITHM,
     SECRET_KEY,
     authenticate_user,
-    create_access_token,
     get_current_user,
     get_password_hash,
     get_user,
     verify_password,
 )
 from chatbot.auth.models import UserInDB
+from chatbot.auth.token import create_access_token, create_token, sub_to_username
 
 
 def _get_fake_db(pwd: str) -> Dict:
@@ -47,9 +47,8 @@ async def test_get_user():
     pwd: str = "mysecretpassword"
     fake_db: Dict = _get_fake_db(pwd)
 
-    username: str = "johndoe"
+    username: str = fake_db["johndoe"]["username"]
     user: UserInDB | None = await get_user(fake_db, username)
-    print(user)
     assert user is not None
     assert user.username == "johndoe"
     assert user.email == "johndoe@example.com"
@@ -91,10 +90,14 @@ async def test_authenticate_user():
 
 @pytest.mark.asyncio
 async def test_create_access_token():
-    data = {"sub": "testuser"}
-    token = await create_access_token(data)
+    # data = {"sub": "testuser"}
+    user_name: str = "testuser"
+    token = await create_access_token(data=create_token(user_name))
     decoded = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
-    assert decoded["sub"] == "testuser"
+    print(decoded)
+    assert decoded["sub"] == "username:testuser"
+    sub = decoded["sub"]
+    assert sub_to_username(sub) == "testuser"
     assert "exp" in decoded
 
 
@@ -102,9 +105,10 @@ async def test_create_access_token():
 async def test_get_current_user_valid():
     pwd: str = "mysecretpassword"
     fake_db: Dict = _get_fake_db(pwd)
-    token: str = await create_access_token({"sub": "johndoe"})
+    user_name: str = fake_db["johndoe"]["username"]
+    token: str = await create_access_token(data=create_token(user_name))
 
-    user: UserInDB = await get_current_user(fake_db, token)
+    user: UserInDB = await get_current_user(token, fake_db)
     assert isinstance(user, UserInDB)
     assert user.username == "johndoe"
 
@@ -113,7 +117,12 @@ async def test_get_current_user_valid():
 async def test_get_current_user_invalid():
     pwd: str = "mysecretpassword"
     fake_db: Dict = _get_fake_db(pwd)
-    invalid_token: str = await create_access_token({"sub": "wronguser"})
+    user_name: str = "wronguser"
+    invalid_token: str = await create_access_token(data=create_token(user_name))
 
     with pytest.raises(HTTPException):
-        await get_current_user(fake_db, invalid_token)
+        await get_current_user(invalid_token, fake_db)
+
+
+if __name__ == "__main__":
+    asyncio.run(test_get_current_user_invalid())
