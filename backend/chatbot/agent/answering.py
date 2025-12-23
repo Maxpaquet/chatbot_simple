@@ -63,7 +63,7 @@ async def get_tools(
         else:
             final_answer = result
         if verbose:
-            print(f"[formulate_answer] final_answer:\n{str(final_answer)}")
+            logger.info(f"[formulate_answer] final_answer:\n{str(final_answer)}")
         return Command(
             update={
                 # "answer": final_answer,
@@ -88,7 +88,7 @@ async def get_tools(
     ):
         """Use this function to search information in the vector database."""
         if verbose:
-            print(f"[search] queries={queries}\nreasoning: {reasoning}")
+            logger.info(f"[search] queries={queries}\nreasoning: {reasoning}")
 
         # Perform similarity search for each query and aggregate results
         all_results: List[tuple[Document, float]] = [
@@ -139,7 +139,7 @@ def choose_tools_node(
         )
 
         response = (prompt | llm_with_tools).invoke(input=dict(state))
-        print(
+        logger.info(
             f"[choose_tools_node] Response from choose_tools_node: {response.content}"
         )
         return {"messages": response}
@@ -149,30 +149,16 @@ def choose_tools_node(
 
 def should_continue(state: AnsweringState):
     last_message: BaseMessage = state["messages"][-1]
-    print(f"[should_continue] Last message type: {type(last_message)}")
-    print(f"[should_continue] Last message content: {last_message.content}")
+    logger.info(f"[should_continue] Last message type: {type(last_message)}")
+    logger.info(f"[should_continue] Last message content: {last_message.content}")
     if isinstance(last_message, AIMessage):
         return END
     if isinstance(last_message, ToolMessage):
-        print(f"[should_continue] Last tool message name: {last_message.name}")
+        logger.info(f"[should_continue] Last tool message name: {last_message.name}")
         if last_message.name == "answer":
-            print(f"[should_continue] Ending workflow.")
+            logger.info(f"[should_continue] Ending workflow.")
             return END
-    print(f"[should_continue] Continuing to choose tools.")
-
-    # # Find the last ToolMessage by reversing the order and getting the first match
-    # last_tool_message = next(
-    #     (m for m in reversed(state["messages"]) if isinstance(m, ToolMessage)), None
-    # )
-    # assert last_tool_message is not None, "No ToolMessage found in messages."
-    # if last_tool_message is None:
-    #     print(f"[should_continue] No ToolMessage found, continuing to choose tools.")
-    #     return "choose_tools"
-
-    # if last_tool_message.name == "formulate_answer":
-    #     print(f"[should_continue] Ending workflow.")
-    #     return END
-    # print(f"[should_continue] Continuing to choose tools.")
+    logger.info(f"[should_continue] Continuing to choose tools.")
     return "choose_tools"
 
 
@@ -196,37 +182,3 @@ async def create_agent(
 
     app: CompiledStateGraph = workflow.compile(checkpointer=checkpointer, store=store)
     return app
-
-
-# async def create_agent(
-#     model: BaseLanguageModel,
-#     tools: List[BaseTool],
-#     name: str,
-#     store: Optional[BaseStore] = None,
-#     checkpointer: Optional[BaseCheckpointSaver] = None,
-# ) -> CompiledStateGraph:
-#     """
-#     Creates and configures a ReAct agent with the specified language model, tools, and optional storage and checkpointing.
-
-#     Args:
-#         model (BaseLanguageModel): The language model to be used by the agent.
-#         tools (List[BaseTool]): A list of tools that the agent can utilize.
-#         store (Optional[BaseStore], optional): An optional storage backend for the agent's state. Defaults to None.
-#         checkpointer (Optional[BaseCheckpointSaver], optional): An optional checkpoint saver for persisting agent state. Defaults to None.
-
-#     Returns:
-#         CompiledStateGraph: The initialized and compiled agent ready for use.
-#     """
-#     kwargs = {
-#         "model": model,
-#         "tools": tools,
-#         "state_schema": AnsweringState,
-#         "prompt": SYSTEM_PROMPT,
-#         "name": name,
-#     }
-#     if store is not None:
-#         kwargs["store"] = store
-#     if checkpointer is not None:
-#         kwargs["checkpointer"] = checkpointer
-
-#     return create_react_agent(**kwargs)
