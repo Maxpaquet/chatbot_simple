@@ -2,11 +2,7 @@ from typing import Annotated, Callable, Dict, List, Optional, Union
 
 from langchain_core.documents import Document
 from langchain_core.language_models import LanguageModelInput
-from langchain_core.messages import (
-    AIMessage,
-    BaseMessage,
-    ToolMessage,
-)
+from langchain_core.messages import AIMessage, BaseMessage, ToolMessage
 from langchain_core.prompts import ChatPromptTemplate, MessagesPlaceholder
 from langchain_core.runnables import Runnable
 from langchain_core.tools import BaseTool, tool
@@ -37,6 +33,9 @@ async def get_tools(
     k: int = 5,
     verbose: bool = False,
 ) -> List[BaseTool]:
+    """This function defines the tools available to the agent for answering questions.
+    It includes a tool for formulating the final answer and a tool for searching information in a vector database.
+    """
 
     @tool
     async def answer(
@@ -50,18 +49,18 @@ async def get_tools(
         if verbose:
             print(f"[formulate_answer] reasoning: {reasoning}")
         result = await llm_structured_output.ainvoke(input=state["messages"])
-        # if isinstance(result, Answer):
-        #     final_answer = result
-        # elif isinstance(result, dict):
-        #     final_answer = Answer(**result)
-        # else:
-        #     logger.error(f"Unexpected type for final_answer: {type(result)}")
-        #     final_answer = result
-        #     # raise TypeError(f"Unexpected type for final_answer: {type(result)}")
-        if isinstance(result, BaseMessage):
-            final_answer = result.content
-        else:
+
+        # TODO: Uncomment when using structured output
+
+        if isinstance(result, Answer):
             final_answer = result
+        elif isinstance(result, dict):
+            final_answer = Answer(**result)
+        else:
+            logger.error(f"Unexpected type for final_answer: {type(result)}")
+            final_answer = result
+            # raise TypeError(f"Unexpected type for final_answer: {type(result)}")
+
         if verbose:
             logger.info(f"[formulate_answer] final_answer:\n{str(final_answer)}")
         return Command(
@@ -122,6 +121,7 @@ async def get_tools(
             }
         )
 
+    # TODO: Add search
     return [answer]  # , search
 
 
@@ -129,6 +129,15 @@ def choose_tools_node(
     llm_with_tools: Runnable[LanguageModelInput, BaseMessage],
     system_prompt: str = SYSTEM_PROMPT,
 ) -> Callable:
+    """
+    Creates a node for the graph execution that selects the appropriate tools or generates a response based on the current state.
+    This function constructs a processing node that utilizes a language model (equipped with tools) to interpret the conversation history and system instructions. It prepares a chat prompt, invokes the model, logs the output, and updates the state with the model's response.
+    Args:
+        llm_with_tools (Runnable[LanguageModelInput, BaseMessage]): The language model instance that has been bound with the available tools.
+        system_prompt (str, optional): The system-level instructions defining the agent's behavior and context. Defaults to SYSTEM_PROMPT.
+    Returns:
+        Callable: A function `process(state: AnsweringState)` that executes the node logic, taking the current state as input and returning a dictionary containing the updated "messages".
+    """
 
     def process(state: AnsweringState):
         prompt = ChatPromptTemplate.from_messages(
@@ -148,6 +157,15 @@ def choose_tools_node(
 
 
 def should_continue(state: AnsweringState):
+    """
+    Determines the next step in the workflow based on the last message in the state.
+    This function inspects the last message in the `AnsweringState` to decide whether to terminate the workflow or proceed to tool selection.
+    Args:
+        state (AnsweringState): The current state of the answering workflow, containing the message history.
+    Returns:
+        str: Returns `END` if the last message is an `AIMessage` or a `ToolMessage` named "answer".
+             Returns "choose_tools" otherwise, indicating the workflow should continue to select tools.
+    """
     last_message: BaseMessage = state["messages"][-1]
     logger.info(f"[should_continue] Last message type: {type(last_message)}")
     logger.info(f"[should_continue] Last message content: {last_message.content}")
@@ -168,6 +186,20 @@ async def create_agent(
     store: Optional[BaseStore] = None,
     checkpointer: Optional[BaseCheckpointSaver] = None,
 ) -> CompiledStateGraph:
+    """
+    Creates and compiles a state graph agent for answering queries using an LLM and a set of tools.
+    This function constructs a LangGraph workflow that orchestrates the interaction between a language model
+    and defined tools. It sets up nodes for tool selection and execution, defines the flow between them,
+    and compiles the graph with optional persistence and storage.
+    Args:
+        llm (ChatOllama | ChatGoogleGenerativeAI): The language model instance to drive the agent.
+        tools (List[BaseTool]): A list of tools available for the agent to use.
+        store (Optional[BaseStore], optional): A storage backend for the compiled graph. Defaults to None.
+        checkpointer (Optional[BaseCheckpointSaver], optional): A checkpointer for saving the state of the graph
+            (e.g., for memory/persistence). Defaults to None.
+    Returns:
+        CompiledStateGraph: The compiled LangGraph application ready for execution.
+    """
     llm_with_tools: Runnable[LanguageModelInput, BaseMessage] = llm.bind_tools(tools)
 
     node_choose_tools: Callable = choose_tools_node(llm_with_tools)
