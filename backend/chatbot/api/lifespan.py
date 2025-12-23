@@ -1,15 +1,15 @@
-from typing import Dict
 from contextlib import asynccontextmanager
 from dataclasses import dataclass
-from fastapi import Request, FastAPI
 from pathlib import Path
+from typing import Dict
 
-from langgraph.pregel import Pregel
-from langgraph.checkpoint.sqlite.aio import AsyncSqliteSaver
+from fastapi import FastAPI, Request
 from langgraph.checkpoint.sqlite import SqliteSaver
-
+from langgraph.checkpoint.sqlite.aio import AsyncSqliteSaver
+from langgraph.pregel import Pregel
 
 from chatbot.agent.main import get_agents_dict
+from chatbot.config import config
 
 HERE = Path(__file__).parent
 
@@ -36,7 +36,7 @@ async def lifespan(
     async with AsyncSqliteSaver.from_conn_string(CHECKPOINT_SQLITE) as checkpointer:
         await checkpointer.setup()
         agent_dict: Dict[str, Pregel] = await get_agents_dict(
-            checkpointer=checkpointer, verbose=False, mock=True
+            checkpointer=checkpointer, verbose=config.verbose, mock=config.mock
         )
 
         app.state.state = AgentLifespanState(
