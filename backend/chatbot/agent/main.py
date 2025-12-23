@@ -1,8 +1,6 @@
 from pathlib import Path
-from typing import Dict, Literal, Optional, Union, cast
+from typing import Dict, Optional
 
-from langchain_core.language_models import LanguageModelInput
-from langchain_core.runnables import Runnable
 from langchain_core.vectorstores import InMemoryVectorStore
 from langchain_google_genai import ChatGoogleGenerativeAI
 from langchain_ollama import ChatOllama, OllamaEmbeddings
@@ -10,10 +8,10 @@ from langgraph.checkpoint.base import BaseCheckpointSaver
 from langgraph.graph.state import CompiledStateGraph
 from langgraph.pregel import Pregel
 from langgraph.store.base import BaseStore
-from pydantic import BaseModel
 
 from chatbot.agent.answering import create_agent, get_tools
 from chatbot.agent.models import Answer
+from chatbot.agent.simple import create_simple_agent
 from chatbot.config import LLMModelConfig, config
 from chatbot.utils import get_embedding_model, get_model
 from chatbot.vector_store.vector_store import get_vector_store
@@ -34,11 +32,7 @@ async def get_agent(
         agent = await create_mock_graph(checkpointer=checkpointer)
         return agent
 
-    # llm: ChatOllama | ChatGoogleGenerativeAI = await aget_model("ollama", "qwen3:8b", temperature=0.0)
-    # llm_with_structured_output: Runnable[LanguageModelInput, Union[dict, BaseModel]] = (
-    #     llm.with_structured_output(Answer)
-    # )
-    llm_with_structured_output = llm
+    llm_with_structured_output = llm.with_structured_output(Answer)
     tools = await get_tools(vector_store, llm_with_structured_output, verbose=verbose)
     agent = await create_agent(llm, tools, checkpointer=checkpointer)
     return agent
@@ -51,7 +45,22 @@ async def get_agents_dict(
     verbose: bool = False,
     mock: bool = False,
 ) -> Dict[str, Pregel]:
-    agents_dict = {}
+    agents_dict: Dict[str, Pregel] = {}
+
+    # Load the LLM configuration from the global config
+    # llm = get_model(service="ollama", model_name="qwen3:8b", temperature=0.0)
+    config_llm: LLMModelConfig = config.llm.default()
+
+    llm: ChatOllama | ChatGoogleGenerativeAI = get_model(
+        service=config_llm.service,
+        model_name=config_llm.model_name,
+        temperature=config_llm.temperature,
+        seed=config_llm.seed,
+    )
+
+    # Define a simple agent that is just a LLM
+    agents_dict["simple"] = await create_simple_agent(llm, checkpointer, store)
+
     # Here you can define multiple agents with different configurations
     agent_names = ["default"]  # Extend this list as needed
 
@@ -66,20 +75,7 @@ async def get_agents_dict(
 
             agents_dict[name] = await create_mock_graph(checkpointer=checkpointer)
         else:
-            # llm = get_model(service="ollama", model_name="qwen3:8b", temperature=0.0)
-            config_llm: LLMModelConfig = config.llm.default()
-
-            llm = get_model(
-                service=config_llm.service,
-                model_name=config_llm.model_name,
-                temperature=config_llm.temperature,
-                seed=config_llm.seed,
-            )
-
-            # llm_with_structured_output: Runnable[
-            #     LanguageModelInput, Union[dict, BaseModel]
-            # ] = llm.with_structured_output(Answer)
-            llm_with_structured_output = llm
+            llm_with_structured_output = llm.with_structured_output(Answer)
             tools = await get_tools(
                 vector_store,
                 llm_with_structured_output,
