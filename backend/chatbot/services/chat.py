@@ -10,7 +10,7 @@ from chatbot.api.lifespan import AgentLifespanState
 from chatbot.agent.answering import AnsweringState
 from chatbot.services.utils import prep_input, prep_config
 from chatbot.messages.conversion import conversion_from_langchain
-
+from chatbot.config import config
 
 async def service_agent_chat(
     thread_id: ThreadID,
@@ -18,8 +18,7 @@ async def service_agent_chat(
     state: AgentLifespanState,
 ) -> Callable:
     print(f"[agent_chat] thread_id: {thread_id}, body: {body}")
-    config: RunnableConfig = await prep_config(thread_id)
-    print(f"[agent_chat] config: {config}")
+    runnable_config: RunnableConfig = await prep_config(thread_id, config.langfuse_config)
     inputs: AnsweringState = await prep_input(body.input)
 
     subgraphs_stream = True  # body.subgraphs_stream
@@ -32,7 +31,7 @@ async def service_agent_chat(
         last_event = None
         async for item in agent.astream(
             input=inputs,
-            config=config,
+            config=runnable_config,
             subgraphs=subgraphs_stream,  # body.subgraphs_stream,
             stream_mode=stream_mode,
             durability="exit",

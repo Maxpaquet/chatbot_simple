@@ -1,27 +1,23 @@
 import asyncio
-from typing import Any, Dict, List
+from typing import Any, Dict, List, Optional
 
 import orjson
+from langchain_core.callbacks import BaseCallbackHandler
 from langchain_core.messages import HumanMessage
 from langchain_core.runnables import RunnableConfig
 from langgraph.checkpoint.base import Checkpoint
 from langgraph.checkpoint.sqlite import SqliteSaver
 from langgraph.checkpoint.sqlite.aio import AsyncSqliteSaver
-from langgraph.graph.message import AnyMessage
+from langgraph.graph.message import BaseMessage
 
 from chatbot.agent.answering import AnsweringState
+from chatbot.config import LangfuseConfig
 from chatbot.messages.models import MessageIn
 from chatbot.services.models import ThreadID
 
 
 async def prep_input(message: MessageIn) -> AnsweringState:
-    # if "messages" in message:
-    #     with contextlib.suppress(Exception):
-    #         try:
-    #             message["messages"] = convert_to_messages(message["messages"])
-    #         except Exception:
-    #             message["messages"] = load(message["messages"])
-    messages: List[AnyMessage] = [
+    messages: List[BaseMessage] = [
         HumanMessage(
             content=message.content,
             id=message.id,
@@ -36,8 +32,13 @@ async def prep_input(message: MessageIn) -> AnsweringState:
     return prep_input
 
 
-async def prep_config(thread_id: ThreadID) -> RunnableConfig:
-    return {"configurable": {"thread_id": thread_id}}
+async def prep_config(
+    thread_id: ThreadID, langfuse_config: Optional[LangfuseConfig] = None
+) -> RunnableConfig:
+    if langfuse_config is None:
+        return {"configurable": {"thread_id": thread_id}}
+    callbacks_: List[BaseCallbackHandler] = [langfuse_config.langfuse_handler]
+    return {"configurable": {"thread_id": thread_id}, "callbacks": callbacks_}
 
 
 async def get_agent_state(

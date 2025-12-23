@@ -1,5 +1,5 @@
 from pathlib import Path
-from typing import Dict, Optional, Union
+from typing import Dict, Literal, Optional, Union, cast
 
 from langchain_core.language_models import LanguageModelInput
 from langchain_core.runnables import Runnable
@@ -14,6 +14,7 @@ from pydantic import BaseModel
 
 from chatbot.agent.answering import create_agent, get_tools
 from chatbot.agent.models import Answer
+from chatbot.config import LLMModelConfig, config
 from chatbot.utils import get_embedding_model, get_model
 from chatbot.vector_store.vector_store import get_vector_store
 
@@ -34,17 +35,19 @@ async def get_agent(
         return agent
 
     # llm: ChatOllama | ChatGoogleGenerativeAI = await aget_model("ollama", "qwen3:8b", temperature=0.0)
-    llm_with_structured_output: Runnable[LanguageModelInput, Union[dict, BaseModel]] = (
-        llm.with_structured_output(Answer)
-    )
+    # llm_with_structured_output: Runnable[LanguageModelInput, Union[dict, BaseModel]] = (
+    #     llm.with_structured_output(Answer)
+    # )
+    llm_with_structured_output = llm
     tools = await get_tools(vector_store, llm_with_structured_output, verbose=verbose)
     agent = await create_agent(llm, tools, checkpointer=checkpointer)
     return agent
 
 
 async def get_agents_dict(
-    checkpointer: BaseCheckpointSaver,
+    checkpointer: Optional[BaseCheckpointSaver],
     store: Optional[BaseStore] = None,
+    k: int = 5,
     verbose: bool = False,
     mock: bool = False,
 ) -> Dict[str, Pregel]:
@@ -52,7 +55,7 @@ async def get_agents_dict(
     # Here you can define multiple agents with different configurations
     agent_names = ["default"]  # Extend this list as needed
 
-    path_vector_store: str = f"{HERE}/../resources/embedding_data/data.json"
+    path_vector_store: str = f"{HERE}/../../resources/embedding_data/data.json"
     embedder: OllamaEmbeddings = get_embedding_model()
     vector_store: InMemoryVectorStore = get_vector_store(
         embedder, path=path_vector_store
@@ -63,11 +66,26 @@ async def get_agents_dict(
 
             agents_dict[name] = await create_mock_graph(checkpointer=checkpointer)
         else:
-            llm = get_model(service="ollama", model_name="qwen3:8b", temperature=0.0)
-            llm_with_structured_output: Runnable[
-                LanguageModelInput, Union[dict, BaseModel]
-            ] = llm.with_structured_output(Answer)
-            tools = await get_tools(vector_store, llm_with_structured_output, verbose)
+            # llm = get_model(service="ollama", model_name="qwen3:8b", temperature=0.0)
+            config_llm: LLMModelConfig = config.llm.default()
+
+            llm = get_model(
+                service=config_llm.service,
+                model_name=config_llm.model_name,
+                temperature=config_llm.temperature,
+                seed=config_llm.seed,
+            )
+
+            # llm_with_structured_output: Runnable[
+            #     LanguageModelInput, Union[dict, BaseModel]
+            # ] = llm.with_structured_output(Answer)
+            llm_with_structured_output = llm
+            tools = await get_tools(
+                vector_store,
+                llm_with_structured_output,
+                k=k,
+                verbose=verbose,
+            )
             agents_dict[name] = await create_agent(
                 llm,
                 tools,
