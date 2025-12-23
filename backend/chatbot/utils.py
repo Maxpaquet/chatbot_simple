@@ -49,6 +49,7 @@ async def aget_model(
         "gemini", "gemini-pro", "gemini-flash-lite", "qwen3:8b"
     ] = "gemini-flash-lite",
     temperature=0.0,
+    seed: int | None = None,
 ):
     if service == "ollama":
         return _create_model_ollama(model_name, temperature)
@@ -64,6 +65,7 @@ def get_model(
         "gemini", "gemini-pro", "gemini-flash-lite", "qwen3:8b"
     ] = "qwen3:8b",
     temperature=0.0,
+    seed: int | None = None,
 ):
     if service == "ollama":
         return _create_model_ollama(model_name, temperature)
