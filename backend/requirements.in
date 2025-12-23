@@ -29,3 +29,5 @@ langchain-ollama
 langchain-text-splitters
 pdfplumber
 numpy
+langfuse
+langchain
