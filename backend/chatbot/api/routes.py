@@ -41,9 +41,3 @@ async def get_agents(*, state: AgentLifespanState = Depends(get_state)) -> Agent
     """Endpoint to list all available agents."""
     agent_names: AgentNames = await service_get_agents_name(state.agent_dict)
     return agent_names
-
-
-@router.get("/chat/protected")
-async def protected_route(current_user: User = Depends(get_current_active_user)):
-    """A protected route that requires authentication."""
-    return {"message": f"Hello, {current_user.username}! This is a protected route."}
