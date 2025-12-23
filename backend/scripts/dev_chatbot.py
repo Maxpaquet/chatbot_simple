@@ -34,7 +34,7 @@ async def main():
         verbose=config.verbose,
         mock=config.mock,
     )
-    agent: Pregel = agents_dict["default"]
+    agent: Pregel = agents_dict["simple"]
 
     input_state = AnsweringState(
         messages=[HumanMessage(content="What is the capital of France?")],
