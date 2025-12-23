@@ -4,14 +4,13 @@ from uuid import uuid4
 from fastapi.testclient import TestClient
 
 from chatbot.api.main import app
-from chatbot.config import config
 from chatbot.messages.models import Author, MessageIn
 from chatbot.services.models import ChatRequest, Thread
 
 
 async def _chat_endpoint(client: TestClient):
     # thread_id = "test-thread"
-    thread_id = "test-12345"
+    thread_id = "test-123456"
     # thread_id = str(uuid4())
     message: MessageIn = MessageIn(
         id=str(uuid4()),
@@ -21,7 +20,7 @@ async def _chat_endpoint(client: TestClient):
     chat_request = ChatRequest(
         thread_id=thread_id,
         input=message,
-        agent_id=None,
+        agent_id="simple",
     )
     payload = chat_request.model_dump()
 
@@ -46,5 +45,4 @@ def test_chat_endpoint():
 
 
 if __name__ == "__main__":
-    print(config)
     test_chat_endpoint()
