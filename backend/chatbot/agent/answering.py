@@ -1,14 +1,13 @@
-from typing import Annotated, Callable, List, Optional, Union
+from typing import Annotated, Callable, Dict, List, Optional, Union
 
 from langchain_core.documents import Document
 from langchain_core.language_models import LanguageModelInput
 from langchain_core.messages import (
     AIMessage,
-    AnyMessage,
     BaseMessage,
-    SystemMessage,
     ToolMessage,
 )
+from langchain_core.prompts import ChatPromptTemplate, MessagesPlaceholder
 from langchain_core.runnables import Runnable
 from langchain_core.tools import BaseTool, tool
 from langchain_core.tools.base import InjectedToolCallId
@@ -34,10 +33,11 @@ SYSTEM_PROMPT = (
 
 async def get_tools(
     vector_store: VectorStore,
-    llm_structured_output: Runnable[LanguageModelInput, Union[dict, BaseModel]],
+    llm_structured_output: Runnable[LanguageModelInput, Union[Dict, BaseModel]],
     k: int = 5,
     verbose: bool = False,
 ) -> List[BaseTool]:
+
     @tool
     async def answer(
         reasoning: Annotated[
@@ -49,20 +49,24 @@ async def get_tools(
         """Use this function to formulate the final answer when you have all the documentation to answer. Once you use this tool, the agent will stop."""
         if verbose:
             print(f"[formulate_answer] reasoning: {reasoning}")
-        result = llm_structured_output.invoke(input=state["messages"])
-        if isinstance(result, Answer):
-            final_answer = result
-        elif isinstance(result, dict):
-            final_answer = Answer(**result)
+        result = await llm_structured_output.ainvoke(input=state["messages"])
+        # if isinstance(result, Answer):
+        #     final_answer = result
+        # elif isinstance(result, dict):
+        #     final_answer = Answer(**result)
+        # else:
+        #     logger.error(f"Unexpected type for final_answer: {type(result)}")
+        #     final_answer = result
+        #     # raise TypeError(f"Unexpected type for final_answer: {type(result)}")
+        if isinstance(result, BaseMessage):
+            final_answer = result.content
         else:
-            logger.error(f"Unexpected type for final_answer: {type(result)}")
             final_answer = result
-            # raise TypeError(f"Unexpected type for final_answer: {type(result)}")
         if verbose:
             print(f"[formulate_answer] final_answer:\n{str(final_answer)}")
         return Command(
             update={
-                "answer": final_answer,
+                # "answer": final_answer,
                 "messages": [
                     ToolMessage(
                         content=str(final_answer),
@@ -118,7 +122,7 @@ async def get_tools(
             }
         )
 
-    return [answer, search]
+    return [answer]  # , search
 
 
 def choose_tools_node(
@@ -127,40 +131,48 @@ def choose_tools_node(
 ) -> Callable:
 
     def process(state: AnsweringState):
-        messages: List[AnyMessage] = [SystemMessage(content=system_prompt)] + state.get(
-            "messages", []
+        prompt = ChatPromptTemplate.from_messages(
+            [
+                ("system", system_prompt),
+                MessagesPlaceholder("messages"),
+            ]
         )
 
-        for m in messages:
-            m.pretty_print()
-
-        response = llm_with_tools.invoke(input=messages)
-        print(f"[choose_tools_node] Response from choose_tools_node: {response}")
+        response = (prompt | llm_with_tools).invoke(input=dict(state))
+        print(
+            f"[choose_tools_node] Response from choose_tools_node: {response.content}"
+        )
         return {"messages": response}
 
     return process
 
 
 def should_continue(state: AnsweringState):
-    for m in state["messages"]:
-        m.pretty_print()
-
-    if isinstance(state["messages"][-1], AIMessage):
+    last_message: BaseMessage = state["messages"][-1]
+    print(f"[should_continue] Last message type: {type(last_message)}")
+    print(f"[should_continue] Last message content: {last_message.content}")
+    if isinstance(last_message, AIMessage):
         return END
-
-    # Find the latest ToolMessage in reverse order
-    last_tool_message = next(
-        (m for m in reversed(state["messages"]) if isinstance(m, ToolMessage)), None
-    )
-    assert last_tool_message is not None, "No ToolMessage found in messages."
-    if last_tool_message is None:
-        print(f"[should_continue] No ToolMessage found, continuing to choose tools.")
-        return "choose_tools"
-
-    if last_tool_message.name == "formulate_answer":
-        print(f"[should_continue] Ending workflow.")
-        return END
+    if isinstance(last_message, ToolMessage):
+        print(f"[should_continue] Last tool message name: {last_message.name}")
+        if last_message.name == "answer":
+            print(f"[should_continue] Ending workflow.")
+            return END
     print(f"[should_continue] Continuing to choose tools.")
+
+    # # Find the last ToolMessage by reversing the order and getting the first match
+    # last_tool_message = next(
+    #     (m for m in reversed(state["messages"]) if isinstance(m, ToolMessage)), None
+    # )
+    # assert last_tool_message is not None, "No ToolMessage found in messages."
+    # if last_tool_message is None:
+    #     print(f"[should_continue] No ToolMessage found, continuing to choose tools.")
+    #     return "choose_tools"
+
+    # if last_tool_message.name == "formulate_answer":
+    #     print(f"[should_continue] Ending workflow.")
+    #     return END
+    # print(f"[should_continue] Continuing to choose tools.")
     return "choose_tools"
 
 
