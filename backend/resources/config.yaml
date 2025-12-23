@@ -1,0 +1,32 @@
+mock: False
+
+verbose: True
+
+langfuse_bool: True
+
+llm_gemini:
+  service: 'gemini'
+  model_name: 'gemini'
+  temperature: 0
+  seed: 4567
+
+llm:
+  llm_models:
+    gemini_flash:
+      service: 'gemini'
+      model_name: 'gemini'
+      temperature: 0
+      seed: 4567
+
+    gemini_flash_lite:
+      service: 'gemini'
+      model_name: 'gemini-flash-lite'
+      temperature: 0
+      seed: 4567
+
+    qwen3_8b:
+      service: 'ollama'
+      model_name: 'qwen3:8b'
+      temperature: 0
+      seed: 4567
+  default_model: qwen3_8b
