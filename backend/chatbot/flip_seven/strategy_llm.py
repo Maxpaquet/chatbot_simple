@@ -5,7 +5,7 @@ from collections import defaultdict
 from chatbot.flip_seven.models import Action, GameState, PlayerState
 
 
-# https://en.wikipedia.org/wiki/Q-learning 
+# https://en.wikipedia.org/wiki/Q-learning
 class QAgent:
     def __init__(
         self,
@@ -29,7 +29,7 @@ class QAgent:
         q_values = self.q_table[key]
         return Action(q_values.index(max(q_values)))
 
-    def update(self, state, action, reward, next_state):
+    def update(self, state: PlayerState, action: Action, reward: float, next_state: PlayerState):
         key = self.state_key(state)
         next_key = self.state_key(next_state)
         action_idx = int(action)
@@ -88,4 +88,4 @@ def optimal_policy(agent: QAgent):
         key = agent.state_key(player_state)
         q_values = agent.q_table[key]
         return Action(q_values.index(max(q_values)))
-    return policy    return policy
+    return policy

@@ -1,40 +1,31 @@
+import asyncio
+from enum import StrEnum
+from typing import Annotated, List, Literal
+from unittest.mock import Base
+
+from langchain_core.messages import BaseMessage, HumanMessage, SystemMessage
+from langchain_core.tools import BaseTool, tool
 from langchain_ollama import ChatOllama
-from langchain_core.tools import tool, BaseTool
+from pydantic import BaseModel, Field
 
-from langchain_core.messages import (
-    AnyMessage,
-    BaseMessage,
-    ToolMessage,
-    HumanMessage,
-    SystemMessage,
-)
-from typing import Literal, Annotated, List, TypedDict, Callable
-from langgraph.graph.message import add_messages
-from langgraph.graph import StateGraph, END
-from langgraph.graph.state import CompiledStateGraph
-from langchain_core.runnables import Runnable
-from langgraph.prebuilt import ToolNode
-
-from langchain_core.language_models import LanguageModelInput
-
-llm = ChatOllama(
-    model="qwen3:8b",
-    validate_model_on_init=True,
-    temperature=0.8,
-)
+# answer: Annotated[str, "The capital of the country"],
 
 
-class State(TypedDict):
-    messages: Annotated[List[AnyMessage], add_messages]
-    remaining_steps: int
+class TAGS(StrEnum):
+    BUILDING = "building"
+    PERSON = "person"
+
+
+class Answer(BaseModel):
+    tags: List[TAGS] = Field(..., description="The tags associated with the answer")
 
 
 @tool
-def formulate_answer(
-    answer: Annotated[str, "The final answer to give to the user"],
+def get_capital(
+    capital: Annotated[str, "The capital"],
 ) -> str:
-    """Formulate the final answer when you are ready."""
-    return f"Search results for: {answer}"
+    """Give the capital of the country"""
+    return capital
 
 
 @tool
@@ -54,73 +45,24 @@ def calculator(
         return 0.0
 
 
-def choose_tools_node(
-    llm_with_tools: Runnable[LanguageModelInput, BaseMessage],
-) -> Callable:
+async def main():
+    llm = ChatOllama(
+        model="qwen3:8b",
+        validate_model_on_init=True,
+        temperature=0.1,
+    ).bind_tools([get_capital, calculator])
 
-    def process(state: State):
-        response = llm_with_tools.invoke(input=state["messages"])
-        print(f"[choose_tools_node] Response from choose_tools_node: {response}")
-        return {"messages": response}
+    system_message = SystemMessage(
+        content="You are a helpful assistant. Select the appropriate tool to answer the user's question. You have access to the following tools: get_capital, calculator."
+    )
+    # message = HumanMessage(content=f"What is the capital of Westeros ?")
+    message = HumanMessage(content=f"2+2 ?")
+    messages = [system_message, message]
+    res = await llm.ainvoke(messages)
 
-    return process
-
-
-def should_continue(state: State):
-    last_message = state["messages"][-1]
-    assert isinstance(last_message, ToolMessage)
-    if last_message.name == "formulate_answer":
-        print(f"[should_continue] Ending workflow.")
-        return END
-    print(f"[should_continue] Continuing to choose tools.")
-    return "choose_tools"
-
-
-def get_graph(llm: ChatOllama, tools: List[BaseTool]):
-    llm_with_tools: Runnable[LanguageModelInput, BaseMessage] = llm.bind_tools(tools)
-
-    node_choose_tools: Callable = choose_tools_node(llm_with_tools)
-    tool_node = ToolNode(tools, handle_tool_errors=False)
-
-    workflow = StateGraph(State)
-    workflow.add_node("choose_tools", node_choose_tools)
-    workflow.add_node("tools", tool_node)
-    workflow.add_edge("choose_tools", "tools")
-    workflow.add_conditional_edges("tools", should_continue)
-    workflow.set_entry_point("choose_tools")
-
-    app: CompiledStateGraph = workflow.compile()
-    return app
+    print(res)
+    print(type(res))
 
 
 if __name__ == "__main__":
-    tools = [calculator, formulate_answer]
-    app = get_graph(llm, tools)
-
-    # messages = [
-    #     (
-    #         "system",
-    #         "You are an intelligent agent that can use tools to answer user questions.",
-    #     ),
-    #     (
-    #         "human",
-    #         "What is 15 plus 30?",
-    #     ),
-    # ]
-
-    messages = [
-        SystemMessage(
-            content="You are an intelligent agent that can use tools to answer user questions."
-        ),
-        HumanMessage(content="What is 15 plus 30?"),
-    ]
-
-    state = State(
-        messages=messages,
-        remaining_steps=5,
-    )
-
-    result = app.invoke(state)
-    print(f"Final result: {result}")
-    for msg in result["messages"]:
-        msg.pretty_print()
+    asyncio.run(main())
