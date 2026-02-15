@@ -44,20 +44,6 @@ class QLearningAgent:
         # Exploitation
         return self.q_table.get_best_action(state_tuple)
 
-    # def get_q_value(self, state: PlayerState, action: Action) -> float:
-    #     state_tuple: Tuple[int, ...] = state.get_tuple()
-    #     if state_tuple not in self.q_table.values:
-    #         raise ValueError(f"State {state_tuple} not found in Q-table.")
-    #         # return None
-    #     return self.q_table.values[state_tuple][action]
-
-    # def set_q_value(self, state: PlayerState, action: Action, value: float) -> None:
-    #     state_tuple: Tuple[int, ...] = state.get_tuple()
-    #     if state_tuple not in self.q_table.values:
-    #         raise ValueError(f"State {state_tuple} not found in Q-table.")
-    #         # return None
-    #     self.q_table.values[state_tuple][action] = value
-
     def update_q_value(
         self,
         state: PlayerState,
@@ -79,17 +65,6 @@ class QLearningAgent:
         )
         self.q_table.set_q_value(state, action, new_q)
 
-    # Utils functions to save and load the Q-table
-    def save_q_table(self, filepath: str) -> None:
-        """Save the Q-table to a file using pickle."""
-        with open(filepath, "wb") as f:
-            pickle.dump(self.q_table, f)
-
-    def load_q_table(self, filepath: str) -> None:
-        """Load the Q-table from a file using pickle."""
-        with open(filepath, "rb") as f:
-            self.q_table = pickle.load(f)
-
 
 def q_learning_strategy(
     episodes: int,
@@ -98,6 +73,7 @@ def q_learning_strategy(
     epsilon: float = 0.1,
     max_nb_cards: int = 3,
     max_card_value: int = 3,
+    epsilon_percentage = 0.05,
     debug: bool = False,
 ):
     agent = QLearningAgent(
@@ -113,13 +89,14 @@ def q_learning_strategy(
     episode = 0
     prev_variability = 50.0
     variability = 100.0
-    epsilon_variability = 5.0
+    # epsilon_percentage = 0.05
     # Track the number of times variability does not change significantly
     stable_count = 0
     stable_threshold = 5  # Number of consecutive checks to consider stabilized
 
     while stable_count < stable_threshold:
         episode += 1
+    # for episode in range(episodes):
 
         game_state = GameState.initialize_game(max_value=max_card_value)
         player_state: PlayerState = create_valide_player_state(
@@ -160,17 +137,24 @@ def q_learning_strategy(
                 print(f"next_player_state: {next_player_state}")
                 print(f"reward: {reward}")
 
-        if episode % 10_000 == 0:
-            print(
-                f"Episode {episode} - Variability : {variability}, previous variability: {prev_variability}"
-            )
+        if episode % 100_000 == 0:
             prev_variability = variability
             variability: float = agent.q_table.variability(prev_q_table)
             prev_q_table = agent.q_table.__deepcopy__()
-            if abs(variability - prev_variability) <= epsilon_variability:
+            # Calculate percentage change in variability
+            if prev_variability != 0:
+                percent_change = abs(variability - prev_variability) / abs(
+                    prev_variability
+                )
+            else:
+                percent_change = float("inf")
+            if percent_change <= epsilon_percentage:
                 stable_count += 1
             else:
                 stable_count = 0
+            print(
+                f"Episode {episode} - Variability : {variability}, percent_change: {percent_change:.4f}"
+            )
 
     print(
         f"Episode {episode} - Variability : {variability}, previous variability: {prev_variability}"

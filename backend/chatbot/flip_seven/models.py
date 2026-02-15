@@ -4,7 +4,7 @@ from enum import IntEnum
 from typing import Dict, List, Tuple
 
 from pydantic import BaseModel
-
+import pickle
 
 class Action(IntEnum):
     STOP = 0
@@ -146,3 +146,25 @@ class QTable:
                     total_diff += abs(val_other)
                     count += 1
         return total_diff
+
+    # Utils functions to save and load the Q-table
+    def save_q_table(self, filepath: str) -> None:
+        """Save the Q-table to a file using pickle."""
+        with open(filepath, "wb") as f:
+            pickle.dump(self.values, f)
+
+    def load_q_table(self, filepath: str) -> None:
+        """Load the Q-table from a file using pickle."""
+        with open(filepath, "rb") as f:
+            self.values = pickle.load(f)
+
+
+class QNetwork:
+    def __init__(self, state_dim: int, action_dim: int):
+        self.state_dim = state_dim
+        self.action_dim = action_dim
+        # Ici, on pourrait définir les couches du réseau de neurones
+
+    def forward(self, x):
+        # Implémentation de la propagation avant du réseau
+        pass
