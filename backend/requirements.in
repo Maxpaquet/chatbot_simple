@@ -1,4 +1,5 @@
 jupyter
+aiosqlite<0.22
 fastapi # ==0.118.1
 uvicorn
 langgraph==0.6.6
@@ -31,3 +32,4 @@ pdfplumber
 numpy
 langfuse
 langchain
+torch
