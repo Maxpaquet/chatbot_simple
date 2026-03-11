@@ -2,7 +2,7 @@ mock: False
 
 verbose: True
 
-langfuse_bool: True
+langfuse_bool: false
 
 llm_gemini:
   service: 'gemini'
