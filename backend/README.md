@@ -55,7 +55,7 @@ This project is a simple chatbot backend built with FastAPI. It supports agent-b
 ### Running the API server
 
 ```bash
-uvicorn chatbot.api.main:app --reload --host 0.0.0.0 --port 8000
+uvicorn chatbot.api.main:app --host 0.0.0.0 --port 8000
 ```
 
 ### Docker
