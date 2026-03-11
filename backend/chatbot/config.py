@@ -4,8 +4,8 @@ from typing import Dict, Literal, Optional, cast
 
 import yaml
 from dotenv import load_dotenv
-from langfuse import Langfuse, get_client
-from langfuse.langchain import CallbackHandler
+from langfuse import Langfuse # , get_client
+# from langfuse.langchain import CallbackHandler
 from pydantic import BaseModel, ConfigDict
 
 LLM_SERVICES = ["gemini", "ollama"]
@@ -40,7 +40,7 @@ class LLM(BaseModel):
 class LangfuseConfig(BaseModel):
     model_config = ConfigDict(arbitrary_types_allowed=True)
     langfuse: Langfuse
-    langfuse_handler: CallbackHandler
+    # langfuse_handler: CallbackHandler
 
 
 class Config:
@@ -124,10 +124,10 @@ class Config:
                         secret_key=langfuse_secret_key,
                         host=langfuse_base_url,
                     )
-                    self.langfuse_config = LangfuseConfig(
-                        langfuse=get_client(),
-                        langfuse_handler=CallbackHandler(),
-                    )
+                    # self.langfuse_config = LangfuseConfig(
+                    #     langfuse=get_client(),
+                    #     langfuse_handler=CallbackHandler(),
+                    # )
                 else:
                     self.langfuse_config = None
             else:
